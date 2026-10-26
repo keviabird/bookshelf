@@ -2,6 +2,7 @@ import Foundation
 import Observation
 
 @Observable
+@MainActor
 final class AddBookViewModel {
     var title = ""
     var author = ""

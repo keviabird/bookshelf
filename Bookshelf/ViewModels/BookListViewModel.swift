@@ -2,6 +2,7 @@ import Foundation
 import Observation
 
 @Observable
+@MainActor
 final class BookListViewModel {
     private(set) var books: [Book] = []
     private(set) var errorMessage: String?
