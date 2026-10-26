@@ -5,6 +5,7 @@ import Observation
 final class BookListViewModel {
     private(set) var books: [Book] = []
     private(set) var errorMessage: String?
+    var isAddingBook = false
 
     private let repository: BookRepository
 
@@ -19,5 +20,9 @@ final class BookListViewModel {
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+
+    func makeAddBookViewModel() -> AddBookViewModel {
+        AddBookViewModel(repository: repository)
     }
 }
