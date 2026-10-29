@@ -61,7 +61,7 @@ final class AddBookViewModel {
             errorMessage = nil
             return true
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Не удалось сохранить книгу. Попробуйте ещё раз."
             return false
         }
     }

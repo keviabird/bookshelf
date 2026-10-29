@@ -2,16 +2,37 @@ import Foundation
 import Testing
 @testable import Bookshelf
 
-/// Хранилище в памяти для тестов ViewModel.
-private final class InMemoryBookRepository: BookRepository {
-    var books: [Book] = []
-    func fetchBooks() throws -> [Book] { books }
-    func add(_ book: Book) throws { books.append(book) }
-    func delete(_ book: Book) throws { books.removeAll { $0 === book } }
-}
-
 @MainActor
 struct AddBookViewModelTests {
+    @Test func failedSaveShowsErrorAndKeepsForm() {
+        let repository = InMemoryBookRepository()
+        repository.failWrites = true
+        let viewModel = AddBookViewModel(repository: repository)
+        viewModel.title = "Война и мир"
+        viewModel.author = "Толстой"
+
+        #expect(!viewModel.save())
+        #expect(viewModel.errorMessage == "Не удалось сохранить книгу. Попробуйте ещё раз.")
+        #expect(repository.books.isEmpty)
+        // Введённые данные не теряются, можно повторить.
+        #expect(viewModel.title == "Война и мир")
+        #expect(viewModel.canSave)
+    }
+
+    @Test func retryAfterFailureSavesExactlyOneBook() throws {
+        let repository = InMemoryBookRepository()
+        repository.failWrites = true
+        let viewModel = AddBookViewModel(repository: repository)
+        viewModel.title = "Война и мир"
+
+        #expect(!viewModel.save())
+        repository.failWrites = false
+        #expect(viewModel.save())
+
+        #expect(viewModel.errorMessage == nil)
+        #expect(repository.books.count == 1)
+    }
+
     @Test(arguments: ["", "   ", "\n", " \t\n "])
     func cannotSaveWithEmptyTitle(title: String) {
         let repository = InMemoryBookRepository()
