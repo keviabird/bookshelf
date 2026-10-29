@@ -16,10 +16,17 @@ struct AddBookView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Книга") {
+                Section {
                     TextField("Название", text: $viewModel.title)
                     TextField("Автор (необязательно)", text: $viewModel.author)
                         .textContentType(.name)
+                } header: {
+                    Text("Книга")
+                } footer: {
+                    if !viewModel.isAuthorValid {
+                        Text("Имя автора не может начинаться с цифры")
+                            .foregroundStyle(.red)
+                    }
                 }
 
                 Section {

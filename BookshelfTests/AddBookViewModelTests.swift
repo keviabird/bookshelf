@@ -37,6 +37,29 @@ struct AddBookViewModelTests {
         #expect(book.status == .wantToRead)
     }
 
+    @Test(arguments: ["1Толстой", "  2 Толстой", "٣ Автор"])
+    func authorStartingWithDigitBlocksSave(author: String) {
+        let repository = InMemoryBookRepository()
+        let viewModel = AddBookViewModel(repository: repository)
+        viewModel.title = "Война и мир"
+        viewModel.author = author
+
+        #expect(!viewModel.isAuthorValid)
+        #expect(!viewModel.canSave)
+        #expect(!viewModel.save())
+        #expect(repository.books.isEmpty)
+    }
+
+    @Test(arguments: ["", "Толстой", "Лев Толстой 2", "А. Б. 1828"])
+    func authorNotStartingWithDigitIsValid(author: String) {
+        let viewModel = AddBookViewModel(repository: InMemoryBookRepository())
+        viewModel.title = "Война и мир"
+        viewModel.author = author
+
+        #expect(viewModel.isAuthorValid)
+        #expect(viewModel.canSave)
+    }
+
     @Test func invalidCoverURLBlocksSave() {
         let viewModel = AddBookViewModel(repository: InMemoryBookRepository())
         viewModel.title = "Война и мир"
