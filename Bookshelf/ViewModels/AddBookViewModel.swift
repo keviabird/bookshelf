@@ -35,8 +35,9 @@ final class AddBookViewModel {
         trimmedCoverURL.isEmpty || coverURL != nil
     }
 
+    /// Обязательно только название; автор и обложка необязательны.
     var canSave: Bool {
-        !trimmedTitle.isEmpty && !trimmedAuthor.isEmpty && isCoverURLValid
+        !trimmedTitle.isEmpty && isCoverURLValid
     }
 
     /// Сохраняет книгу. Возвращает true при успехе.

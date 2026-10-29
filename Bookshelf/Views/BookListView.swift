@@ -24,7 +24,9 @@ struct BookListView: View {
                     List(viewModel.books) { book in
                         VStack(alignment: .leading, spacing: 2) {
                             Text(book.title).font(.headline)
-                            Text(book.author).font(.subheadline).foregroundStyle(.secondary)
+                            if !book.author.isEmpty {
+                                Text(book.author).font(.subheadline).foregroundStyle(.secondary)
+                            }
                             Text(book.status.title).font(.caption).foregroundStyle(.tint)
                         }
                     }

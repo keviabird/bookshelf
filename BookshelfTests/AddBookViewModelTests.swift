@@ -12,15 +12,29 @@ private final class InMemoryBookRepository: BookRepository {
 
 @MainActor
 struct AddBookViewModelTests {
-    @Test func cannotSaveWithoutTitleOrAuthor() {
-        let viewModel = AddBookViewModel(repository: InMemoryBookRepository())
-        viewModel.title = "   "
+    @Test(arguments: ["", "   ", "\n", " \t\n "])
+    func cannotSaveWithEmptyTitle(title: String) {
+        let repository = InMemoryBookRepository()
+        let viewModel = AddBookViewModel(repository: repository)
+        viewModel.title = title
         viewModel.author = "Толстой"
-        #expect(!viewModel.canSave)
 
-        viewModel.title = "Война и мир"
-        viewModel.author = ""
         #expect(!viewModel.canSave)
+        #expect(!viewModel.save())
+        #expect(repository.books.isEmpty)
+    }
+
+    @Test func canSaveWithTitleOnly() throws {
+        let repository = InMemoryBookRepository()
+        let viewModel = AddBookViewModel(repository: repository)
+        viewModel.title = "Война и мир"
+        viewModel.author = "  "
+
+        #expect(viewModel.canSave)
+        #expect(viewModel.save())
+        let book = try #require(repository.books.first)
+        #expect(book.author == "")
+        #expect(book.status == .wantToRead)
     }
 
     @Test func invalidCoverURLBlocksSave() {
@@ -36,13 +50,14 @@ struct AddBookViewModelTests {
         let repository = InMemoryBookRepository()
         let viewModel = AddBookViewModel(repository: repository)
         viewModel.title = "  Война и мир "
-        viewModel.author = "Толстой"
+        viewModel.author = " Толстой  "
         viewModel.coverURLString = "https://example.com/cover.jpg"
         viewModel.status = .reading
 
         #expect(viewModel.save())
         let book = try #require(repository.books.first)
         #expect(book.title == "Война и мир")
+        #expect(book.author == "Толстой")
         #expect(book.coverURL == URL(string: "https://example.com/cover.jpg"))
         #expect(book.status == .reading)
     }

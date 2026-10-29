@@ -18,7 +18,7 @@ struct AddBookView: View {
             Form {
                 Section("Книга") {
                     TextField("Название", text: $viewModel.title)
-                    TextField("Автор", text: $viewModel.author)
+                    TextField("Автор (необязательно)", text: $viewModel.author)
                         .textContentType(.name)
                 }
 
