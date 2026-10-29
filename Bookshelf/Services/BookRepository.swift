@@ -23,12 +23,23 @@ final class SwiftDataBookRepository: BookRepository {
     }
 
     func add(_ book: Book) throws {
-        context.insert(book)
-        try context.save()
+        try saveOrRollback { context.insert(book) }
     }
 
     func delete(_ book: Book) throws {
-        context.delete(book)
-        try context.save()
+        try saveOrRollback { context.delete(book) }
+    }
+
+    /// Применяет изменение и сразу сохраняет; при ошибке откатывает контекст.
+    /// `rollback()` отменяет все несохранённые изменения, поэтому модели меняются
+    /// только через репозиторий и каждая операция сохраняется сразу (см. CLAUDE.md).
+    private func saveOrRollback(_ change: () -> Void) throws {
+        change()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 }

@@ -14,12 +14,13 @@ final class BookListViewModel {
         self.repository = repository
     }
 
+    /// При ошибке список не очищается: остаются последние загруженные книги.
     func loadBooks() {
         do {
             books = try repository.fetchBooks()
             errorMessage = nil
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Не удалось загрузить книги."
         }
     }
 

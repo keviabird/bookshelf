@@ -11,7 +11,14 @@ struct BookListView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if viewModel.books.isEmpty {
+                if viewModel.books.isEmpty, let errorMessage = viewModel.errorMessage {
+                    ContentUnavailableView {
+                        Label(errorMessage, systemImage: "exclamationmark.triangle")
+                    } actions: {
+                        Button("Повторить") { viewModel.loadBooks() }
+                            .buttonStyle(.borderedProminent)
+                    }
+                } else if viewModel.books.isEmpty {
                     ContentUnavailableView {
                         Label("Полка пуста", systemImage: "books.vertical")
                     } description: {
@@ -32,6 +39,19 @@ struct BookListView: View {
                                 }
                                 Text(book.status.title).font(.caption).foregroundStyle(.tint)
                             }
+                        }
+                    }
+                    .safeAreaInset(edge: .top) {
+                        if let errorMessage = viewModel.errorMessage {
+                            HStack {
+                                Label(errorMessage, systemImage: "exclamationmark.triangle")
+                                    .foregroundStyle(.red)
+                                Spacer()
+                                Button("Повторить") { viewModel.loadBooks() }
+                            }
+                            .font(.subheadline)
+                            .padding(12)
+                            .background(.bar)
                         }
                     }
                 }
