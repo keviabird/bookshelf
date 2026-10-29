@@ -35,8 +35,15 @@ final class AddBookViewModel {
         trimmedCoverURL.isEmpty || coverURL != nil
     }
 
+    /// Автор необязателен, но если указан — не должен начинаться с цифры.
+    var isAuthorValid: Bool {
+        guard let first = trimmedAuthor.first else { return true }
+        return !first.isWholeNumber
+    }
+
+    /// Обязательно только название; автор и обложка необязательны.
     var canSave: Bool {
-        !trimmedTitle.isEmpty && !trimmedAuthor.isEmpty && isCoverURLValid
+        !trimmedTitle.isEmpty && isAuthorValid && isCoverURLValid
     }
 
     /// Сохраняет книгу. Возвращает true при успехе.
