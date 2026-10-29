@@ -22,12 +22,16 @@ struct BookListView: View {
                     }
                 } else {
                     List(viewModel.books) { book in
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(book.title).font(.headline)
-                            if !book.author.isEmpty {
-                                Text(book.author).font(.subheadline).foregroundStyle(.secondary)
+                        HStack(spacing: 12) {
+                            BookCoverView(title: book.title, coverURL: book.coverURL)
+                                .accessibilityHidden(true)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(book.title).font(.headline)
+                                if !book.author.isEmpty {
+                                    Text(book.author).font(.subheadline).foregroundStyle(.secondary)
+                                }
+                                Text(book.status.title).font(.caption).foregroundStyle(.tint)
                             }
-                            Text(book.status.title).font(.caption).foregroundStyle(.tint)
                         }
                     }
                 }
