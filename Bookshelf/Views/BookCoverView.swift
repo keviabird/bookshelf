@@ -30,7 +30,7 @@ struct BookCoverView: View {
         ZStack {
             Rectangle().fill(Color.accentColor.gradient)
             Text(title)
-                .font(.system(size: 9, weight: .semibold))
+                .font(.system(size: Self.placeholderFontSize(for: title), weight: .semibold))
                 .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
                 .lineLimit(5)
@@ -38,10 +38,23 @@ struct BookCoverView: View {
                 .padding(4)
         }
     }
+
+    /// Размер шрифта заглушки: короткие названия крупнее, чтобы не терялись на обложке.
+    /// Если длинное слово не влезает, его дополнительно ужмёт `minimumScaleFactor`.
+    static func placeholderFontSize(for title: String) -> CGFloat {
+        let length = title.trimmingCharacters(in: .whitespacesAndNewlines).count
+        switch length {
+        case ...4: return 18
+        case ...12: return 12
+        default: return 9
+        }
+    }
 }
 
 #Preview {
     HStack(spacing: 16) {
+        BookCoverView(title: "Я", coverURL: nil)
+        BookCoverView(title: "1984", coverURL: nil)
         BookCoverView(title: "Война и мир", coverURL: nil)
         BookCoverView(title: "Очень длинное название книги, которое не влезает", coverURL: nil)
         BookCoverView(title: "Битая ссылка", coverURL: URL(string: "https://invalid.example/cover.jpg"))
