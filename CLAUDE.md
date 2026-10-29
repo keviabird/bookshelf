@@ -13,6 +13,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - ViewModel помечены `@Observable` и `@MainActor`
 - Тесты: Swift Testing (не XCTest) для логики
 - Не добавлять сторонние зависимости без согласования
+- Модели SwiftData меняются только через `BookRepository`, и каждая операция сразу вызывает `save()`. Никаких изменений моделей напрямую из View/биндингов: при ошибке сохранения репозиторий делает `context.rollback()`, который отменяет **все** несохранённые изменения в контексте
+- После ошибки записи ViewModel перезагружает данные из репозитория, чтобы состояние в памяти совпало с хранилищем
 
 ## Commands
 
@@ -43,7 +45,7 @@ Simulator notes:
 MVVM with a repository layer:
 
 - `Models/` — SwiftData `@Model` classes. `Book.status` is a computed wrapper over the stored `statusRawValue: String` so that `#Predicate` can filter by status; keep enums stored as raw strings.
-- `Services/` — `BookRepository` protocol + `SwiftDataBookRepository` (wraps `ModelContext`, calls `save()` after mutations).
+- `Services/` — `BookRepository` protocol + `SwiftDataBookRepository` (wraps `ModelContext`, calls `save()` after each mutation and `rollback()` if the save fails — see the rule above).
 - `ViewModels/` — `@Observable` classes that depend only on `BookRepository`, never on `ModelContext` or `@Query`.
 - `Views/` — own their ViewModel via `@State`, injected through `init`.
 
