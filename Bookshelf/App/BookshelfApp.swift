@@ -11,6 +11,11 @@ import SwiftData
 @main
 struct BookshelfApp: App {
     private let modelContainer: ModelContainer = {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains(SampleData.launchArgument) {
+            return SampleData.makeContainer()
+        }
+        #endif
         do {
             return try ModelContainer(for: Book.self)
         } catch {

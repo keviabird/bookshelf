@@ -8,6 +8,8 @@ final class AddBookViewModel {
     var author = ""
     var coverURLString = ""
     var status: ReadingStatus = .wantToRead
+    /// Прогресс чтения (0…1); учитывается только для статуса «Читаю».
+    var progress: Double = 0
     private(set) var errorMessage: String?
 
     private let repository: BookRepository
@@ -46,6 +48,18 @@ final class AddBookViewModel {
         !trimmedTitle.isEmpty && isAuthorValid && isCoverURLValid
     }
 
+    /// Слайдер прогресса показывается только для книг, которые читаются сейчас.
+    var showsProgress: Bool { status == .reading }
+
+    /// Прогресс, который будет сохранён: зависит от статуса.
+    var progressToSave: Double {
+        switch status {
+        case .wantToRead: 0
+        case .reading: Book.clampedProgress(progress)
+        case .finished: 1
+        }
+    }
+
     /// Сохраняет книгу. Возвращает true при успехе.
     @discardableResult
     func save() -> Bool {
@@ -54,7 +68,8 @@ final class AddBookViewModel {
             title: trimmedTitle,
             author: trimmedAuthor,
             coverURL: coverURL,
-            status: status
+            status: status,
+            progress: progressToSave
         )
         do {
             try repository.add(book)

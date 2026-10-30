@@ -41,4 +41,118 @@ struct BookListViewModelTests {
         #expect(viewModel.errorMessage == nil)
         #expect(viewModel.books.count == 1)
     }
+
+    // MARK: - Фильтр по статусу
+
+    /// 2 «Читаю», 2 «Хочу прочитать», 1 «Прочитано».
+    private func makeLoadedViewModel() -> BookListViewModel {
+        let repository = InMemoryBookRepository()
+        repository.books = [
+            Book(title: "Мастер и Маргарита", author: "", status: .reading),
+            Book(title: "Пикник на обочине", author: "", status: .reading),
+            Book(title: "Война и мир", author: "", status: .wantToRead),
+            Book(title: "Анна Каренина", author: "", status: .wantToRead),
+            Book(title: "Мы", author: "", status: .finished),
+        ]
+        let viewModel = BookListViewModel(repository: repository)
+        viewModel.loadBooks()
+        return viewModel
+    }
+
+    @Test func countsBooksPerStatus() {
+        let viewModel = makeLoadedViewModel()
+
+        #expect(viewModel.totalCount == 5)
+        #expect(viewModel.count(for: .reading) == 2)
+        #expect(viewModel.count(for: .wantToRead) == 2)
+        #expect(viewModel.count(for: .finished) == 1)
+    }
+
+    @Test func showsAllBooksByDefault() {
+        let viewModel = makeLoadedViewModel()
+
+        #expect(viewModel.isAllSelected)
+        #expect(viewModel.filteredBooks.count == 5)
+    }
+
+    @Test func filtersBySingleStatus() {
+        let viewModel = makeLoadedViewModel()
+
+        viewModel.toggle(.finished)
+
+        #expect(!viewModel.isAllSelected)
+        #expect(viewModel.isSelected(.finished))
+        #expect(viewModel.filteredBooks.map(\.title) == ["Мы"])
+    }
+
+    @Test func filtersBySeveralStatuses() {
+        let viewModel = makeLoadedViewModel()
+
+        viewModel.toggle(.reading)
+        viewModel.toggle(.wantToRead)
+
+        #expect(viewModel.selectedStatuses == [.reading, .wantToRead])
+        #expect(viewModel.filteredBooks.count == 4)
+        #expect(viewModel.filteredBooks.allSatisfy { $0.status != .finished })
+    }
+
+    @Test func togglingSelectedStatusRemovesIt() {
+        let viewModel = makeLoadedViewModel()
+        viewModel.toggle(.reading)
+        viewModel.toggle(.finished)
+
+        viewModel.toggle(.reading)
+
+        #expect(viewModel.selectedStatuses == [.finished])
+    }
+
+    @Test func removingLastStatusReturnsToAll() {
+        let viewModel = makeLoadedViewModel()
+        viewModel.toggle(.reading)
+
+        viewModel.toggle(.reading)
+
+        #expect(viewModel.isAllSelected)
+        #expect(viewModel.filteredBooks.count == 5)
+    }
+
+    @Test func selectingEveryStatusReturnsToAll() {
+        let viewModel = makeLoadedViewModel()
+
+        ReadingStatus.allCases.forEach { viewModel.toggle($0) }
+
+        #expect(viewModel.isAllSelected)
+        #expect(viewModel.selectedStatuses.isEmpty)
+    }
+
+    @Test func selectAllClearsFilter() {
+        let viewModel = makeLoadedViewModel()
+        viewModel.toggle(.reading)
+        viewModel.toggle(.finished)
+
+        viewModel.selectAll()
+
+        #expect(viewModel.isAllSelected)
+        #expect(viewModel.filteredBooks.count == 5)
+    }
+
+    @Test func filterKeepsWorkingAfterReload() {
+        let viewModel = makeLoadedViewModel()
+        viewModel.toggle(.finished)
+
+        viewModel.loadBooks()
+
+        #expect(viewModel.selectedStatuses == [.finished])
+        #expect(viewModel.filteredBooks.count == 1)
+    }
+
+    @Test func summaryNounAgreesWithCount() {
+        #expect(makeLoadedViewModel().summaryNoun == "книг")
+
+        let repository = InMemoryBookRepository()
+        repository.books = [Book(title: "Мы", author: "")]
+        let single = BookListViewModel(repository: repository)
+        single.loadBooks()
+        #expect(single.summaryNoun == "книга")
+    }
 }
