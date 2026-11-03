@@ -41,10 +41,10 @@ struct BookListView: View {
         .task {
             viewModel.loadBooks()
             #if DEBUG
-            // Для скриншотов: сразу открыть карточку первой книги.
-            if ProcessInfo.processInfo.arguments.contains(SampleData.openFirstBookArgument),
-               path.isEmpty, let first = viewModel.filteredBooks.first {
-                path = [first]
+            // Для скриншотов: сразу открыть карточку книги по индексу.
+            if let index = SampleData.openBookIndex, path.isEmpty,
+               viewModel.filteredBooks.indices.contains(index) {
+                path = [viewModel.filteredBooks[index]]
             }
             #endif
         }

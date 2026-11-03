@@ -3,10 +3,17 @@ import Foundation
 import SwiftData
 
 /// Примеры книг для превью и скриншотов.
-/// `-seedSampleBooks` — запуск с этими книгами в памяти; `-openFirstBook` — сразу открыть карточку первой.
+/// `-seedSampleBooks` — запуск с этими книгами в памяти;
+/// `-openBookIndex N` — сразу открыть карточку N-й книги списка (с нуля).
 enum SampleData {
     static let launchArgument = "-seedSampleBooks"
-    static let openFirstBookArgument = "-openFirstBook"
+
+    /// Индекс книги из аргумента `-openBookIndex N` (аргументы запуска попадают в UserDefaults).
+    static var openBookIndex: Int? {
+        UserDefaults.standard.object(forKey: "openBookIndex") == nil
+            ? nil
+            : UserDefaults.standard.integer(forKey: "openBookIndex")
+    }
 
     static func makeBooks() -> [Book] {
         let now = Date.now

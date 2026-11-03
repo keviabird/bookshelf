@@ -29,6 +29,11 @@ struct BookCoverView: View {
         }
         .frame(width: size.width, height: size.height)
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+        // Тонкая светлая обводка: тёмная обложка не сливается с тёмным фоном.
+        .overlay {
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .strokeBorder(Theme.Colors.textOnDark.opacity(0.12), lineWidth: 0.5)
+        }
     }
 
     private var placeholder: some View {
