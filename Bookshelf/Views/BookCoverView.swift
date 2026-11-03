@@ -5,6 +5,7 @@ struct BookCoverView: View {
     let title: String
     let coverURL: URL?
     var size = CGSize(width: 48, height: 72)
+    var cornerRadius: CGFloat = 4
 
     /// Базовые размеры шрифта заглушки рассчитаны на ширину 48pt.
     private var scale: CGFloat { size.width / 48 }
@@ -27,15 +28,15 @@ struct BookCoverView: View {
             }
         }
         .frame(width: size.width, height: size.height)
-        .clipShape(RoundedRectangle(cornerRadius: 4))
+        .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
     }
 
     private var placeholder: some View {
         ZStack {
-            Rectangle().fill(Theme.Colors.header.gradient)
+            Rectangle().fill(Theme.Colors.backgroundDark.gradient)
             Text(title)
                 .font(.system(size: Self.placeholderFontSize(for: title) * scale, weight: .semibold, design: .serif))
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.Colors.textOnDark)
                 .multilineTextAlignment(.center)
                 .lineLimit(5)
                 .minimumScaleFactor(0.6)

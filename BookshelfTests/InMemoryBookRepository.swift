@@ -24,4 +24,9 @@ final class InMemoryBookRepository: BookRepository {
         if failWrites { throw StorageError() }
         books.removeAll { $0 === book }
     }
+
+    func update(_ book: Book, _ change: (Book) -> Void) throws {
+        if failWrites { throw StorageError() }
+        change(book)
+    }
 }

@@ -6,7 +6,8 @@ struct BookRowView: View {
     let title: String
     let author: String
     let coverURL: URL?
-    let progress: Double
+    /// nil — число страниц неизвестно, полоса не показывается.
+    let progress: Double?
 
     var body: some View {
         HStack(alignment: .top, spacing: 20) {
@@ -31,10 +32,12 @@ struct BookRowView: View {
                         .lineLimit(2)
                 }
                 Spacer(minLength: 16)
-                ReadingProgressBar(progress: progress)
-                    .padding(.bottom, 12)
+                if let progress {
+                    ReadingProgressBar(progress: progress)
+                        .padding(.bottom, 12)
+                }
             }
-            .foregroundStyle(Theme.Colors.ink)
+            .foregroundStyle(Theme.Colors.textPrimary)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         // Колонка с текстом растягивается до высоты обложки, и прогресс встаёт вниз.
@@ -47,6 +50,7 @@ struct BookRowView: View {
     VStack(spacing: 32) {
         BookRowView(rank: 1, title: "Мастер и Маргарита", author: "Михаил Булгаков", coverURL: nil, progress: 0.14)
         BookRowView(rank: 2, title: "Мы", author: "", coverURL: nil, progress: 1)
+        BookRowView(rank: 3, title: "Без страниц", author: "Неизвестно", coverURL: nil, progress: nil)
     }
     .padding()
 }

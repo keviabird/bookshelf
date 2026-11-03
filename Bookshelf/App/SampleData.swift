@@ -2,29 +2,50 @@
 import Foundation
 import SwiftData
 
-/// Примеры книг для превью и скриншотов (запуск с аргументом `-seedSampleBooks`).
+/// Примеры книг для превью и скриншотов.
+/// `-seedSampleBooks` — запуск с этими книгами в памяти; `-openFirstBook` — сразу открыть карточку первой.
 enum SampleData {
     static let launchArgument = "-seedSampleBooks"
+    static let openFirstBookArgument = "-openFirstBook"
 
     static func makeBooks() -> [Book] {
         let now = Date.now
-        let items: [(String, String, ReadingStatus, Double)] = [
-            ("Мастер и Маргарита", "Михаил Булгаков", .reading, 0.02),
-            ("Преступление и наказание", "Фёдор Достоевский", .reading, 0.14),
-            ("Пикник на обочине", "Аркадий и Борис Стругацкие", .reading, 0.75),
-            ("Война и мир", "Лев Толстой", .wantToRead, 0),
-            ("Мы", "Евгений Замятин", .finished, 1),
-        ]
         // Чем раньше в списке, тем новее: список сортируется по дате добавления.
-        return items.enumerated().map { index, item in
+        func added(_ index: Int) -> Date { now.addingTimeInterval(-Double(index) * 86_400) }
+        return [
             Book(
-                title: item.0,
-                author: item.1,
-                status: item.2,
-                progress: item.3,
-                dateAdded: now.addingTimeInterval(-Double(index) * 60)
-            )
-        }
+                title: "Мастер и Маргарита",
+                author: "Михаил Булгаков",
+                status: .reading,
+                pageCount: 498,
+                currentPage: 210,
+                publicationYear: 1967,
+                bookDescription: "Воланд со свитой приезжает в Москву 1930-х, а Мастер пишет роман о Понтии Пилате. Сатира, мистика и история любви в одной книге.",
+                isFavorite: true,
+                dateAdded: added(0)
+            ),
+            Book(
+                title: "Преступление и наказание",
+                author: "Фёдор Достоевский",
+                status: .reading,
+                pageCount: 608,
+                currentPage: 85,
+                publicationYear: 1866,
+                dateAdded: added(1)
+            ),
+            // Старая книга: добавлена до появления числа страниц.
+            Book(title: "Пикник на обочине", author: "Аркадий и Борис Стругацкие", status: .reading, dateAdded: added(2)),
+            Book(title: "Война и мир", author: "Лев Толстой", status: .wantToRead, pageCount: 1274, dateAdded: added(3)),
+            Book(
+                title: "Мы",
+                author: "Евгений Замятин",
+                status: .finished,
+                pageCount: 224,
+                publicationYear: 1924,
+                bookDescription: "Антиутопия о Едином Государстве, где у людей вместо имён номера, а жизнь расписана по Часовой Скрижали.",
+                dateAdded: added(4)
+            ),
+        ]
     }
 
     /// Контейнер в памяти с примерами книг.

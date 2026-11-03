@@ -14,7 +14,7 @@ struct RankBadge: View {
             .minimumScaleFactor(0.5)
             .padding(4)
             .frame(width: size, height: size)
-            .background(Theme.Colors.badge, in: Circle())
+            .background(Theme.Colors.textOnDark, in: Circle())
             .shadow(color: .black.opacity(0.25), radius: 4, y: 4)
     }
 }

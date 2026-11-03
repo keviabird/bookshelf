@@ -43,4 +43,17 @@ struct SwiftDataBookRepositoryTests {
         #expect(!context.hasChanges)
         #expect(try repository.fetchBooks().isEmpty)
     }
+
+    @Test func updateSavesChanges() throws {
+        let (repository, context) = try makeRepository()
+        let book = Book(title: "Мы", author: "Замятин", status: .reading, pageCount: 224, currentPage: 10)
+        try repository.add(book)
+
+        try repository.update(book) { $0.setStatus(.finished) }
+
+        #expect(!context.hasChanges)
+        let saved = try #require(try repository.fetchBooks().first)
+        #expect(saved.status == .finished)
+        #expect(saved.currentPage == 224)
+    }
 }

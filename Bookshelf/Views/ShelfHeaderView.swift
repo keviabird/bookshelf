@@ -10,7 +10,7 @@ struct ShelfHeaderView: View {
                 .textCase(.uppercase)
                 .font(Theme.Fonts.headerTitle)
                 .tracking(Theme.Fonts.headerTitleTracking)
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.Colors.textOnDark)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
                 .accessibilityAddTraits(.isHeader)
@@ -23,7 +23,7 @@ struct ShelfHeaderView: View {
                     Label("Добавить книгу", systemImage: "plus")
                         .labelStyle(.iconOnly)
                         .font(.title2)
-                        .foregroundStyle(Theme.Colors.gold)
+                        .foregroundStyle(Theme.Colors.accent)
                         .frame(minWidth: 44, minHeight: 44)
                         .contentShape(Rectangle())
                 }
@@ -36,5 +36,5 @@ struct ShelfHeaderView: View {
 
 #Preview {
     ShelfHeaderView {}
-        .background(Theme.Colors.header)
+        .background(Theme.Colors.backgroundDark)
 }
