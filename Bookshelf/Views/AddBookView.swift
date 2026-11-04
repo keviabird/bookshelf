@@ -54,6 +54,19 @@ struct AddBookView: View {
                     .labelsHidden()
                 }
 
+                if viewModel.showsProgress {
+                    Section("Прогресс") {
+                        HStack(spacing: 12) {
+                            Slider(value: $viewModel.progress, in: 0...1, step: 0.05)
+                                .accessibilityLabel("Прогресс чтения")
+                            Text(ReadingProgressBar.percentText(viewModel.progress))
+                                .monospacedDigit()
+                                .frame(minWidth: 44, alignment: .trailing)
+                                .accessibilityHidden(true)
+                        }
+                    }
+                }
+
                 if let errorMessage = viewModel.errorMessage {
                     Section {
                         Text(errorMessage).foregroundStyle(.red)

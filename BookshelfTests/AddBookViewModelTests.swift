@@ -105,4 +105,35 @@ struct AddBookViewModelTests {
         #expect(book.coverURL == URL(string: "https://example.com/cover.jpg"))
         #expect(book.status == .reading)
     }
+
+    // MARK: - Прогресс чтения
+
+    @Test func progressSliderShownOnlyWhileReading() {
+        let viewModel = AddBookViewModel(repository: InMemoryBookRepository())
+
+        viewModel.status = .wantToRead
+        #expect(!viewModel.showsProgress)
+        viewModel.status = .reading
+        #expect(viewModel.showsProgress)
+        viewModel.status = .finished
+        #expect(!viewModel.showsProgress)
+    }
+
+    @Test(arguments: [
+        (ReadingStatus.wantToRead, 0.0),
+        (ReadingStatus.reading, 0.4),
+        (ReadingStatus.finished, 1.0),
+    ])
+    func savedProgressDependsOnStatus(status: ReadingStatus, expected: Double) throws {
+        let repository = InMemoryBookRepository()
+        let viewModel = AddBookViewModel(repository: repository)
+        viewModel.title = "Мастер и Маргарита"
+        // Значение слайдера учитывается только для «Читаю».
+        viewModel.progress = 0.4
+        viewModel.status = status
+
+        #expect(viewModel.save())
+        let book = try #require(repository.books.first)
+        #expect(book.progress == expected)
+    }
 }

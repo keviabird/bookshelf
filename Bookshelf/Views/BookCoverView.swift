@@ -4,6 +4,10 @@ import SwiftUI
 struct BookCoverView: View {
     let title: String
     let coverURL: URL?
+    var size = CGSize(width: 48, height: 72)
+
+    /// Базовые размеры шрифта заглушки рассчитаны на ширину 48pt.
+    private var scale: CGFloat { size.width / 48 }
 
     var body: some View {
         Group {
@@ -22,32 +26,40 @@ struct BookCoverView: View {
                 placeholder
             }
         }
-        .frame(width: 48, height: 72)
-        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .frame(width: size.width, height: size.height)
+        .clipShape(RoundedRectangle(cornerRadius: 4))
     }
 
     private var placeholder: some View {
         ZStack {
-            Rectangle().fill(Color.accentColor.gradient)
+            Rectangle().fill(Theme.Colors.header.gradient)
             Text(title)
-                .font(.system(size: Self.placeholderFontSize(for: title), weight: .semibold))
+                .font(.system(size: Self.placeholderFontSize(for: title) * scale, weight: .semibold, design: .serif))
                 .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
                 .lineLimit(5)
                 .minimumScaleFactor(0.6)
-                .padding(4)
+                .padding(4 * scale)
         }
     }
 
-    /// Размер шрифта заглушки: короткие названия крупнее, чтобы не терялись на обложке.
-    /// Если длинное слово не влезает, его дополнительно ужмёт `minimumScaleFactor`.
+    /// Ширина текста на обложке шириной 48pt (без отступов) и средняя ширина буквы в долях кегля.
+    private static let placeholderTextWidth: CGFloat = 40
+    private static let averageCharWidth: CGFloat = 0.55
+
+    /// Размер шрифта заглушки (для обложки шириной 48pt): короткие названия крупнее,
+    /// чтобы не терялись на обложке. Самое длинное слово должно поместиться в строку целиком —
+    /// иначе SwiftUI разорвёт его посередине, а не уменьшит шрифт.
     static func placeholderFontSize(for title: String) -> CGFloat {
-        let length = title.trimmingCharacters(in: .whitespacesAndNewlines).count
-        switch length {
-        case ...4: return 18
-        case ...12: return 12
-        default: return 9
+        let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        let base: CGFloat = switch trimmed.count {
+        case ...4: 18
+        case ...12: 12
+        default: 9
         }
+        let longestWord = trimmed.split(whereSeparator: \.isWhitespace).map(\.count).max() ?? 0
+        guard longestWord > 0 else { return base }
+        return min(base, placeholderTextWidth / (CGFloat(longestWord) * averageCharWidth))
     }
 }
 
@@ -58,6 +70,14 @@ struct BookCoverView: View {
         BookCoverView(title: "Война и мир", coverURL: nil)
         BookCoverView(title: "Очень длинное название книги, которое не влезает", coverURL: nil)
         BookCoverView(title: "Битая ссылка", coverURL: URL(string: "https://invalid.example/cover.jpg"))
+    }
+    .padding()
+}
+
+#Preview("Крупная") {
+    HStack(spacing: 16) {
+        BookCoverView(title: "Я", coverURL: nil, size: Theme.Metrics.coverSize)
+        BookCoverView(title: "Мастер и Маргарита", coverURL: nil, size: Theme.Metrics.coverSize)
     }
     .padding()
 }

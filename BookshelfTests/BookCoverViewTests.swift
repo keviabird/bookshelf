@@ -15,7 +15,19 @@ struct BookCoverViewTests {
     }
 
     @Test func longTitleGetsSmallFont() {
-        #expect(BookCoverView.placeholderFontSize(for: "Мастер и Маргарита") == 9)
+        #expect(BookCoverView.placeholderFontSize(for: "Мастер и Маргарита") <= 9)
+    }
+
+    @Test(arguments: ["Преступление и наказание", "Достопримечательности", "Мастер и Маргарита"])
+    func longestWordFitsWithoutBreaking(title: String) {
+        let size = BookCoverView.placeholderFontSize(for: title)
+        let longestWord = title.split(separator: " ").map(\.count).max() ?? 0
+        // Оценка ширины слова не больше ширины текста на обложке 48pt.
+        #expect(size * CGFloat(longestWord) * 0.55 <= 40 + 0.001)
+    }
+
+    @Test func shortWordsInLongTitleKeepBaseSize() {
+        #expect(BookCoverView.placeholderFontSize(for: "Мы и он и я и ты и вы") == 9)
     }
 
     @Test func fontShrinksAsTitleGrows() {
