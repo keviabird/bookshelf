@@ -53,6 +53,10 @@ Dependency flow: `App/BookshelfApp` creates the `ModelContainer`, builds `SwiftD
 
 Views do not use `@Query` — data goes through ViewModel → repository so ViewModels stay testable. Previews build an in-memory `ModelContainer`.
 
+## Design / Figma
+
+Before implementing UI from Figma (Figma MCP) or adding colors, fonts, icons or assets, read `DESIGN_SYSTEM.md`: Figma output is a reference to rewrite in SwiftUI using system tokens, SF Symbols and `Assets.xcassets`.
+
 ## Build settings that affect code
 
 - `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` in the app target: all types are implicitly `@MainActor`. Tests touching ViewModels must be marked `@MainActor`.
