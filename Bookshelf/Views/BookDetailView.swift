@@ -30,20 +30,8 @@ struct BookDetailView: View {
             }
             .ignoresSafeArea()
         }
-        .navigationBarTitleDisplayMode(.inline)
-        // Фон панели прозрачный — под ней наш тёмный фон. Своя заливка панели взяла бы
-        // тёмный вариант цвета из-за `toolbarColorScheme(.dark)` и отличалась бы от фона.
-        .toolbarBackground(.hidden, for: .navigationBar)
-        .toolbarColorScheme(.dark, for: .navigationBar)
+        .shelfNavigationBar(title: "О книге")
         .toolbar {
-            ToolbarItem(placement: .principal) {
-                Text("О книге")
-                    .textCase(.uppercase)
-                    .font(Theme.Fonts.headerTitle)
-                    .tracking(Theme.Fonts.headerTitleTracking)
-                    .foregroundStyle(Theme.Colors.textOnDark)
-                    .accessibilityAddTraits(.isHeader)
-            }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     viewModel.toggleFavorite()

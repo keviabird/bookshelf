@@ -13,22 +13,31 @@ struct BookListView: View {
 
     var body: some View {
         NavigationStack(path: $path) {
-            VStack(spacing: 0) {
-                ShelfHeaderView { viewModel.isAddingBook = true }
-
-                sheetContent
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background {
-                        UnevenRoundedRectangle(
-                            topLeadingRadius: Theme.Metrics.sheetCornerRadius,
-                            topTrailingRadius: Theme.Metrics.sheetCornerRadius
-                        )
-                        .fill(Theme.Colors.surface)
-                        .ignoresSafeArea(edges: .bottom)
+            sheetContent
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background {
+                    UnevenRoundedRectangle(
+                        topLeadingRadius: Theme.Metrics.sheetCornerRadius,
+                        topTrailingRadius: Theme.Metrics.sheetCornerRadius
+                    )
+                    .fill(Theme.Colors.surface)
+                    .ignoresSafeArea(edges: .bottom)
+                }
+                .padding(.top, 8)
+                .background { Theme.Colors.backgroundDark.ignoresSafeArea() }
+                .shelfNavigationBar(title: "Книжная полка")
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            viewModel.isAddingBook = true
+                        } label: {
+                            Label("Добавить книгу", systemImage: "plus")
+                                .labelStyle(.iconOnly)
+                        }
+                        // Кнопки панели красятся через tint, foregroundStyle они игнорируют.
+                        .tint(Theme.Colors.accent)
                     }
-            }
-            .background { Theme.Colors.backgroundDark.ignoresSafeArea() }
-            .toolbar(.hidden, for: .navigationBar)
+                }
             .navigationDestination(for: Book.self) { book in
                 BookDetailView(viewModel: viewModel.makeDetailViewModel(for: book))
             }
