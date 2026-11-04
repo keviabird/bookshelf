@@ -6,6 +6,8 @@ protocol BookRepository {
     func fetchBooks() throws -> [Book]
     func add(_ book: Book) throws
     func delete(_ book: Book) throws
+    /// Применяет изменение к книге и сохраняет; при ошибке изменение откатывается.
+    func update(_ book: Book, _ change: (Book) -> Void) throws
 }
 
 final class SwiftDataBookRepository: BookRepository {
@@ -28,6 +30,10 @@ final class SwiftDataBookRepository: BookRepository {
 
     func delete(_ book: Book) throws {
         try saveOrRollback { context.delete(book) }
+    }
+
+    func update(_ book: Book, _ change: (Book) -> Void) throws {
+        try saveOrRollback { change(book) }
     }
 
     /// Применяет изменение и сразу сохраняет; при ошибке откатывает контекст.

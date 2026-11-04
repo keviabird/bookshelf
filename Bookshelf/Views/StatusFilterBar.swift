@@ -23,9 +23,9 @@ struct StatusFilterBar: View {
 
     private var chips: some View {
         HStack(spacing: 10) {
-            FilterChip(title: "Все", count: totalCount, isSelected: isAllSelected, action: onSelectAll)
+            StatusChip(title: "Все", count: totalCount, isSelected: isAllSelected, action: onSelectAll)
             ForEach(ReadingStatus.allCases) { status in
-                FilterChip(
+                StatusChip(
                     title: status.title,
                     count: count(status),
                     isSelected: isSelected(status),

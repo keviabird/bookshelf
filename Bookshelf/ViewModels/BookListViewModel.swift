@@ -70,4 +70,11 @@ final class BookListViewModel {
     func makeAddBookViewModel() -> AddBookViewModel {
         AddBookViewModel(repository: repository)
     }
+
+    /// Карточка книги использует тот же репозиторий; после изменений список перезагружается.
+    func makeDetailViewModel(for book: Book) -> BookDetailViewModel {
+        BookDetailViewModel(book: book, repository: repository) { [weak self] in
+            self?.loadBooks()
+        }
+    }
 }

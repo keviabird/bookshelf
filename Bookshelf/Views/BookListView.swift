@@ -4,36 +4,59 @@ import SwiftData
 /// Главный экран: тёмная шапка и скруглённый лист со сводкой, фильтром и списком книг.
 struct BookListView: View {
     @State private var viewModel: BookListViewModel
+    /// Открытые карточки книг.
+    @State private var path: [Book] = []
 
     init(viewModel: BookListViewModel) {
         _viewModel = State(initialValue: viewModel)
     }
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                ShelfHeaderView { viewModel.isAddingBook = true }
-
-                sheetContent
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background {
-                        UnevenRoundedRectangle(
-                            topLeadingRadius: Theme.Metrics.sheetCornerRadius,
-                            topTrailingRadius: Theme.Metrics.sheetCornerRadius
-                        )
-                        .fill(Theme.Colors.sheet)
-                        .ignoresSafeArea(edges: .bottom)
+        NavigationStack(path: $path) {
+            sheetContent
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background {
+                    UnevenRoundedRectangle(
+                        topLeadingRadius: Theme.Metrics.sheetCornerRadius,
+                        topTrailingRadius: Theme.Metrics.sheetCornerRadius
+                    )
+                    .fill(Theme.Colors.surface)
+                    .ignoresSafeArea(edges: .bottom)
+                }
+                .padding(.top, 8)
+                .background { Theme.Colors.backgroundDark.ignoresSafeArea() }
+                .shelfNavigationBar(title: "Книжная полка")
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            viewModel.isAddingBook = true
+                        } label: {
+                            Label("Добавить книгу", systemImage: "plus")
+                                .labelStyle(.iconOnly)
+                        }
+                        // Кнопки панели красятся через tint, foregroundStyle они игнорируют.
+                        .tint(Theme.Colors.accent)
                     }
+                }
+            .navigationDestination(for: Book.self) { book in
+                BookDetailView(viewModel: viewModel.makeDetailViewModel(for: book))
             }
-            .background { Theme.Colors.header.ignoresSafeArea() }
-            .toolbar(.hidden, for: .navigationBar)
             .sheet(isPresented: $viewModel.isAddingBook) {
                 AddBookView(viewModel: viewModel.makeAddBookViewModel()) {
                     viewModel.loadBooks()
                 }
             }
         }
-        .task { viewModel.loadBooks() }
+        .task {
+            viewModel.loadBooks()
+            #if DEBUG
+            // Для скриншотов: сразу открыть карточку книги по индексу.
+            if let index = SampleData.openBookIndex, path.isEmpty,
+               viewModel.filteredBooks.indices.contains(index) {
+                path = [viewModel.filteredBooks[index]]
+            }
+            #endif
+        }
     }
 
     @ViewBuilder
@@ -86,13 +109,21 @@ struct BookListView: View {
     private var bookList: some View {
         List {
             ForEach(Array(viewModel.filteredBooks.enumerated()), id: \.element.id) { index, book in
-                BookRowView(
-                    rank: index + 1,
-                    title: book.title,
-                    author: book.author,
-                    coverURL: book.coverURL,
-                    progress: book.progress
-                )
+                // Кнопка, а не NavigationLink: так у строки нет системной стрелки.
+                Button {
+                    path.append(book)
+                } label: {
+                    BookRowView(
+                        rank: index + 1,
+                        title: book.title,
+                        author: book.author,
+                        coverURL: book.coverURL,
+                        progress: book.hasKnownPages ? book.progress : nil
+                    )
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityHint("Открыть карточку книги")
                 .listRowInsets(EdgeInsets(top: 24, leading: 24, bottom: 24, trailing: 24))
                 .listRowBackground(Color.clear)
                 // Разделитель на всю ширину, как в макете.

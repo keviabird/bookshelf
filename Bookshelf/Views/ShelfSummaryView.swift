@@ -12,11 +12,11 @@ struct ShelfSummaryView: View {
             Text("У вас на полке ")
             + Text("\(count)")
                 .font(Theme.Fonts.summaryNumber)
-                .foregroundStyle(Theme.Colors.gold)
+                .foregroundStyle(Theme.Colors.accent)
             + Text(" \(noun)")
         )
         .font(Theme.Fonts.summaryText)
-        .foregroundStyle(Theme.Colors.ink)
+        .foregroundStyle(Theme.Colors.textPrimary)
         .multilineTextAlignment(.center)
         .frame(maxWidth: .infinity)
     }

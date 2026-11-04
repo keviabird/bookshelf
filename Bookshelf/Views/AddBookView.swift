@@ -54,15 +54,38 @@ struct AddBookView: View {
                     .labelsHidden()
                 }
 
-                if viewModel.showsProgress {
-                    Section("Прогресс") {
-                        HStack(spacing: 12) {
-                            Slider(value: $viewModel.progress, in: 0...1, step: 0.05)
-                                .accessibilityLabel("Прогресс чтения")
-                            Text(ReadingProgressBar.percentText(viewModel.progress))
-                                .monospacedDigit()
-                                .frame(minWidth: 44, alignment: .trailing)
-                                .accessibilityHidden(true)
+                Section {
+                    TextField(
+                        viewModel.isPageCountRequired ? "Страниц" : "Страниц (необязательно)",
+                        text: $viewModel.pageCountText
+                    )
+                    .keyboardType(.numberPad)
+                    TextField("Год издания (необязательно)", text: $viewModel.yearText)
+                        .keyboardType(.numberPad)
+                    TextField("Описание (необязательно)", text: $viewModel.bookDescription, axis: .vertical)
+                        .lineLimit(3...6)
+                } header: {
+                    Text("Подробности")
+                } footer: {
+                    detailsFooter
+                }
+
+                if viewModel.showsCurrentPage {
+                    Section {
+                        HStack {
+                            TextField("Текущая страница (необязательно)", text: $viewModel.currentPageText)
+                                .keyboardType(.numberPad)
+                            if let progressText = viewModel.computedProgressText {
+                                Text(progressText)
+                                    .monospacedDigit()
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    } header: {
+                        Text("Прогресс")
+                    } footer: {
+                        if let error = viewModel.currentPageError {
+                            Text(error).foregroundStyle(.red)
                         }
                     }
                 }
@@ -89,6 +112,17 @@ struct AddBookView: View {
                     .disabled(!viewModel.canSave)
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    private var detailsFooter: some View {
+        if let error = viewModel.pageCountError {
+            Text(error).foregroundStyle(.red)
+        } else if let error = viewModel.yearError {
+            Text(error).foregroundStyle(.red)
+        } else if viewModel.isPageCountRequired {
+            Text("Число страниц нужно, чтобы считать прогресс чтения.")
         }
     }
 }
