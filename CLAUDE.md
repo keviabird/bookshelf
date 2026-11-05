@@ -16,6 +16,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Модели SwiftData меняются только через `BookRepository`, и каждая операция сразу вызывает `save()`. Никаких изменений моделей напрямую из View/биндингов: при ошибке сохранения репозиторий делает `context.rollback()`, который отменяет **все** несохранённые изменения в контексте
 - После ошибки записи ViewModel перезагружает данные из репозитория, чтобы состояние в памяти совпало с хранилищем
 - Прогресс чтения вычисляется только по страницам (`currentPage / pageCount`), не хранится. Статус и текущую страницу менять только через `Book.setStatus` / `Book.setCurrentPage` внутри `repository.update { … }` — там все правила (например, «Прочитано» → последняя страница)
+- Сеть — только через протокол `BookSearchService`; DTO Open Library не выходят за пределы `Services/Search/`, маппинг DTO → `BookSearchResult` → `Book` только в `OpenLibraryMapper`
+- Включён `SWIFT_STRICT_CONCURRENCY = complete`: сборка без предупреждений. Типы без состояния UI (DTO, результаты поиска, сервисы, чистые функции) помечать `nonisolated` и `Sendable`, сетевую работу — `@concurrent`
 
 ## Commands
 
@@ -47,6 +49,7 @@ MVVM with a repository layer:
 
 - `Models/` — SwiftData `@Model` classes. `Book.status` is a computed wrapper over the stored `statusRawValue: String` so that `#Predicate` can filter by status; keep enums stored as raw strings.
 - `Services/` — `BookRepository` protocol (`fetchBooks`, `add`, `delete`, `update(book) { change }`) + `SwiftDataBookRepository` (wraps `ModelContext`, calls `save()` after each mutation and `rollback()` if the save fails — see the rule above).
+- `Services/Search/` — `BookSearchService` protocol + `OpenLibrarySearchService` (`search.json`, async/await, `URLSession`), DTOs, `BookSearchResult`, `OpenLibraryMapper`. `BookSearchViewModel` debounces input by cancelling the previous `Task` (300 ms, injectable `sleep` for tests); duplicates are checked by `Book.openLibraryKey` or normalized title + author.
 - `ViewModels/` — `@Observable` classes that depend only on `BookRepository`, never on `ModelContext` or `@Query`.
 - `Views/` — own their ViewModel via `@State`, injected through `init`.
 

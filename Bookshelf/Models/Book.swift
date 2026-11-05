@@ -20,6 +20,8 @@ final class Book {
     var publicationYear: Int?
     var bookDescription: String = ""
     var isFavorite: Bool = false
+    /// Ключ работы в Open Library, если книга добавлена из поиска. По нему ищутся дубли.
+    var openLibraryKey: String?
 
     var status: ReadingStatus {
         get { ReadingStatus(rawValue: statusRawValue) ?? .wantToRead }
@@ -44,6 +46,7 @@ final class Book {
         publicationYear: Int? = nil,
         bookDescription: String = "",
         isFavorite: Bool = false,
+        openLibraryKey: String? = nil,
         dateAdded: Date = .now
     ) {
         self.title = title
@@ -54,6 +57,7 @@ final class Book {
         self.publicationYear = publicationYear
         self.bookDescription = bookDescription
         self.isFavorite = isFavorite
+        self.openLibraryKey = openLibraryKey
         self.dateAdded = dateAdded
         setStatus(status)
         // Текущая страница имеет смысл только для книги, которую читают сейчас.

@@ -3,9 +3,14 @@ import SwiftData
 
 /// Главный экран: тёмная шапка и скруглённый лист со сводкой, фильтром и списком книг.
 struct BookListView: View {
+    /// Экраны, которые открываются из списка.
+    enum Route: Hashable {
+        case book(Book)
+        case search
+    }
+
     @State private var viewModel: BookListViewModel
-    /// Открытые карточки книг.
-    @State private var path: [Book] = []
+    @State private var path: [Route] = []
 
     init(viewModel: BookListViewModel) {
         _viewModel = State(initialValue: viewModel)
@@ -14,19 +19,20 @@ struct BookListView: View {
     var body: some View {
         NavigationStack(path: $path) {
             sheetContent
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background {
-                    UnevenRoundedRectangle(
-                        topLeadingRadius: Theme.Metrics.sheetCornerRadius,
-                        topTrailingRadius: Theme.Metrics.sheetCornerRadius
-                    )
-                    .fill(Theme.Colors.surface)
-                    .ignoresSafeArea(edges: .bottom)
-                }
-                .padding(.top, 8)
-                .background { Theme.Colors.backgroundDark.ignoresSafeArea() }
+                .shelfSheetBackground()
                 .shelfNavigationBar(title: "Книжная полка")
                 .toolbar {
+                    // Лупа слева, «+» справа: так заголовок остаётся по центру.
+                    // Кнопки панели красятся через tint, foregroundStyle они игнорируют.
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            path.append(.search)
+                        } label: {
+                            Label("Найти книгу", systemImage: "magnifyingglass")
+                                .labelStyle(.iconOnly)
+                        }
+                        .tint(Theme.Colors.accent)
+                    }
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
                             viewModel.isAddingBook = true
@@ -34,12 +40,16 @@ struct BookListView: View {
                             Label("Добавить книгу", systemImage: "plus")
                                 .labelStyle(.iconOnly)
                         }
-                        // Кнопки панели красятся через tint, foregroundStyle они игнорируют.
                         .tint(Theme.Colors.accent)
                     }
                 }
-            .navigationDestination(for: Book.self) { book in
-                BookDetailView(viewModel: viewModel.makeDetailViewModel(for: book))
+            .navigationDestination(for: Route.self) { route in
+                switch route {
+                case .book(let book):
+                    BookDetailView(viewModel: viewModel.makeDetailViewModel(for: book))
+                case .search:
+                    BookSearchView(viewModel: viewModel.makeSearchViewModel())
+                }
             }
             .sheet(isPresented: $viewModel.isAddingBook) {
                 AddBookView(viewModel: viewModel.makeAddBookViewModel()) {
@@ -50,10 +60,12 @@ struct BookListView: View {
         .task {
             viewModel.loadBooks()
             #if DEBUG
-            // Для скриншотов: сразу открыть карточку книги по индексу.
+            // Для скриншотов: сразу открыть карточку книги по индексу или поиск.
             if let index = SampleData.openBookIndex, path.isEmpty,
                viewModel.filteredBooks.indices.contains(index) {
-                path = [viewModel.filteredBooks[index]]
+                path = [.book(viewModel.filteredBooks[index])]
+            } else if SampleData.searchQuery != nil, path.isEmpty {
+                path = [.search]
             }
             #endif
         }
@@ -111,7 +123,7 @@ struct BookListView: View {
             ForEach(Array(viewModel.filteredBooks.enumerated()), id: \.element.id) { index, book in
                 // Кнопка, а не NavigationLink: так у строки нет системной стрелки.
                 Button {
-                    path.append(book)
+                    path.append(.book(book))
                 } label: {
                     BookRowView(
                         rank: index + 1,

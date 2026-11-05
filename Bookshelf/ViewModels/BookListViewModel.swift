@@ -11,9 +11,11 @@ final class BookListViewModel {
     private(set) var selectedStatuses: Set<ReadingStatus> = []
 
     private let repository: BookRepository
+    private let searchService: BookSearchService
 
-    init(repository: BookRepository) {
+    init(repository: BookRepository, searchService: BookSearchService = OpenLibrarySearchService()) {
         self.repository = repository
+        self.searchService = searchService
     }
 
     // MARK: - Фильтр по статусу
@@ -69,6 +71,18 @@ final class BookListViewModel {
 
     func makeAddBookViewModel() -> AddBookViewModel {
         AddBookViewModel(repository: repository)
+    }
+
+    /// Поиск добавляет книги в тот же репозиторий; после добавления список перезагружается.
+    func makeSearchViewModel() -> BookSearchViewModel {
+        let search = BookSearchViewModel(service: searchService, repository: repository, onAdd: { [weak self] in
+            self?.loadBooks()
+        })
+        #if DEBUG
+        // Для скриншотов: запрос из аргумента запуска `-openSearch`.
+        if let query = SampleData.searchQuery { search.query = query }
+        #endif
+        return search
     }
 
     /// Карточка книги использует тот же репозиторий; после изменений список перезагружается.

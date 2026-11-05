@@ -155,4 +155,19 @@ struct BookListViewModelTests {
         single.loadBooks()
         #expect(single.summaryNoun == "книга")
     }
+
+    @Test func bookAddedFromSearchAppearsInList() {
+        let repository = InMemoryBookRepository()
+        repository.books = [Book(title: "Война и мир", author: "Толстой")]
+        let viewModel = BookListViewModel(repository: repository, searchService: FakeBookSearchService())
+        viewModel.loadBooks()
+
+        let search = viewModel.makeSearchViewModel()
+        search.loadShelf()
+        search.add(searchResult("/works/OL1W"))
+
+        #expect(viewModel.totalCount == 2)
+        #expect(viewModel.count(for: .wantToRead) == 2)
+        #expect(viewModel.books.contains { $0.openLibraryKey == "/works/OL1W" })
+    }
 }
