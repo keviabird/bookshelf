@@ -88,6 +88,7 @@ struct BookMigrationTests {
         #expect(book.publicationYear == nil)
         #expect(book.bookDescription == "")
         #expect(!book.isFavorite)
+        #expect(book.openLibraryKey == nil)
         #expect(book.progress == 0)
     }
 
@@ -107,5 +108,6 @@ struct BookMigrationTests {
         // Старый процент не переносится: прогресс теперь считается только по страницам.
         #expect(!book.hasKnownPages)
         #expect(book.progress == 0)
+        #expect(book.openLibraryKey == nil)
     }
 }

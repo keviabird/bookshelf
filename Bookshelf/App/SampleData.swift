@@ -4,7 +4,8 @@ import SwiftData
 
 /// Примеры книг для превью и скриншотов.
 /// `-seedSampleBooks` — запуск с этими книгами в памяти;
-/// `-openBookIndex N` — сразу открыть карточку N-й книги списка (с нуля).
+/// `-openBookIndex N` — сразу открыть карточку N-й книги списка (с нуля);
+/// `-openSearch "запрос"` — сразу открыть поиск с этим запросом (пустая строка — без запроса).
 enum SampleData {
     static let launchArgument = "-seedSampleBooks"
 
@@ -13,6 +14,10 @@ enum SampleData {
         UserDefaults.standard.object(forKey: "openBookIndex") == nil
             ? nil
             : UserDefaults.standard.integer(forKey: "openBookIndex")
+    }
+
+    static var searchQuery: String? {
+        UserDefaults.standard.string(forKey: "openSearch")
     }
 
     static func makeBooks() -> [Book] {
