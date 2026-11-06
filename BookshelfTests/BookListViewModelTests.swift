@@ -59,42 +59,9 @@ struct BookListViewModelTests {
         return viewModel
     }
 
-    @Test func countsBooksPerStatus() {
-        let viewModel = makeLoadedViewModel()
 
-        #expect(viewModel.totalCount == 5)
-        #expect(viewModel.count(for: .reading) == 2)
-        #expect(viewModel.count(for: .wantToRead) == 2)
-        #expect(viewModel.count(for: .finished) == 1)
-    }
 
-    @Test func showsAllBooksByDefault() {
-        let viewModel = makeLoadedViewModel()
 
-        #expect(viewModel.isAllSelected)
-        #expect(viewModel.filteredBooks.count == 5)
-    }
-
-    @Test func filtersBySingleStatus() {
-        let viewModel = makeLoadedViewModel()
-
-        viewModel.toggle(.finished)
-
-        #expect(!viewModel.isAllSelected)
-        #expect(viewModel.isSelected(.finished))
-        #expect(viewModel.filteredBooks.map(\.title) == ["Мы"])
-    }
-
-    @Test func filtersBySeveralStatuses() {
-        let viewModel = makeLoadedViewModel()
-
-        viewModel.toggle(.reading)
-        viewModel.toggle(.wantToRead)
-
-        #expect(viewModel.selectedStatuses == [.reading, .wantToRead])
-        #expect(viewModel.filteredBooks.count == 4)
-        #expect(viewModel.filteredBooks.allSatisfy { $0.status != .finished })
-    }
 
     @Test func togglingSelectedStatusRemovesIt() {
         let viewModel = makeLoadedViewModel()

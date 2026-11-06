@@ -64,6 +64,112 @@ struct OpenLibraryMapperTests {
         #expect(OpenLibraryMapper.coverURL(id: -1) == nil)
     }
 
+    // MARK: - Неполные документы
+
+    /// Документ «ключ + название» плюс одно поле. Всё, чего нет в `fields`, ожидается пустым.
+    struct PartialDoc: Sendable, CustomTestStringConvertible {
+        let name: String
+        let fields: String
+        var coverURL: URL? = nil
+        var author = ""
+        var year: Int? = nil
+        var pageCount: Int? = nil
+
+        var testDescription: String { name }
+    }
+
+    @Test(arguments: [
+        PartialDoc(name: "только ключ и название", fields: ""),
+        PartialDoc(name: "без обложки, но с годом", fields: #", "first_publish_year": 1928"#, year: 1928),
+        PartialDoc(name: "обложка 0", fields: #", "cover_i": 0"#),
+        PartialDoc(name: "обложка -1", fields: #", "cover_i": -1"#),
+        PartialDoc(name: "есть обложка", fields: #", "cover_i": 42"#,
+                   coverURL: URL(string: "https://covers.openlibrary.org/b/id/42-M.jpg?default=false")),
+        PartialDoc(name: "пустой список авторов", fields: #", "author_name": []"#),
+        PartialDoc(name: "авторы из пробелов", fields: #", "author_name": ["  ", ""]"#),
+        PartialDoc(name: "автор с пробелами по краям", fields: #", "author_name": ["  Илья Ильф "]"#, author: "Илья Ильф"),
+        PartialDoc(name: "два автора", fields: #", "author_name": ["Илья Ильф", "Евгений Петров"]"#,
+                   author: "Илья Ильф, Евгений Петров"),
+        PartialDoc(name: "0 страниц", fields: #", "number_of_pages_median": 0"#),
+        PartialDoc(name: "отрицательные страницы", fields: #", "number_of_pages_median": -10"#),
+        PartialDoc(name: "есть страницы", fields: #", "number_of_pages_median": 250"#, pageCount: 250),
+    ])
+    func mapsPartialDocuments(doc: PartialDoc) throws {
+        let json = #"{"docs": [{"key": "/works/X", "title": "Книга""# + doc.fields + "}]}"
+        let response = try JSONDecoder().decode(OpenLibrarySearchResponseDTO.self, from: Data(json.utf8))
+
+        let result = try #require(OpenLibraryMapper.results(from: response).first)
+
+        #expect(result.id == "/works/X")
+        #expect(result.title == "Книга")
+        #expect(result.coverURL == doc.coverURL)
+        #expect(result.author == doc.author)
+        #expect(result.firstPublishYear == doc.year)
+        #expect(result.pageCount == doc.pageCount)
+    }
+
+    @Test(arguments: [nil, "", "   ", "\n"] as [String?])
+    func skipsDocumentsWithoutTitle(title: String?) throws {
+        let titleField = title.map { #", "title": "# + "\(String(reflecting: $0))" } ?? ""
+        let json = #"{"docs": [{"key": "/works/X""# + titleField + "}]}"
+        let response = try JSONDecoder().decode(OpenLibrarySearchResponseDTO.self, from: Data(json.utf8))
+
+        #expect(OpenLibraryMapper.results(from: response).isEmpty)
+    }
+
+    @Test func emptyDocsGiveNoResults() throws {
+        let response = try JSONDecoder().decode(OpenLibrarySearchResponseDTO.self, from: Data(#"{"numFound": 0, "docs": []}"#.utf8))
+
+        #expect(OpenLibraryMapper.results(from: response).isEmpty)
+    }
+
+    @Test(arguments: [#"{"numFound": 0}"#, #"{"docs": [{"title": "Без ключа"}]}"#, "<html>502</html>"])
+    func malformedResponseFailsToDecode(json: String) {
+        #expect(throws: DecodingError.self) {
+            try JSONDecoder().decode(OpenLibrarySearchResponseDTO.self, from: Data(json.utf8))
+        }
+    }
+
+    // MARK: - DTO → Book
+
+    /// Вся цепочка для «голого» документа: без обложки, автора, года и страниц.
+    @MainActor
+    @Test func bareDocumentBecomesWantToReadBook() throws {
+        let json = #"{"docs": [{"key": "/works/OL9W", "title": "Мы"}]}"#
+        let response = try JSONDecoder().decode(OpenLibrarySearchResponseDTO.self, from: Data(json.utf8))
+        let result = try #require(OpenLibraryMapper.results(from: response).first)
+
+        let book = OpenLibraryMapper.book(from: result)
+
+        #expect(book.title == "Мы")
+        #expect(book.author == "")
+        #expect(book.coverURL == nil)
+        #expect(book.publicationYear == nil)
+        #expect(book.pageCount == 0)
+        #expect(!book.hasKnownPages)
+        #expect(book.status == .wantToRead)
+        #expect(book.currentPage == nil)
+        #expect(book.openLibraryKey == "/works/OL9W")
+    }
+
+    /// Книга из поиска сохраняется в SwiftData и читается обратно с теми же полями.
+    @MainActor
+    @Test func mappedBookSurvivesSwiftDataRoundTrip() throws {
+        let store = try TestStore()
+        let result = searchResult("/works/OL1W", pageCount: nil)
+
+        try store.repository.add(OpenLibraryMapper.book(from: result))
+
+        let saved = try #require(try store.persistedBooks().first)
+        #expect(saved.title == result.title)
+        #expect(saved.author == result.author)
+        #expect(saved.coverURL == result.coverURL)
+        #expect(saved.publicationYear == result.firstPublishYear)
+        #expect(saved.pageCount == 0)
+        #expect(saved.status == .wantToRead)
+        #expect(saved.openLibraryKey == "/works/OL1W")
+    }
+
     @MainActor
     @Test func bookFromResultWantsToRead() {
         let result = BookSearchResult(

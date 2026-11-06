@@ -4,7 +4,7 @@ import Testing
 @testable import Bookshelf
 
 /// Проверяет настоящий репозиторий на базе в памяти.
-/// Ветку с rollback так не проверить: заставить `save()` упасть на базе в памяти не удаётся.
+/// Откат после сбоя сохранения — в `SwiftDataWriteFailureTests` (сбой подставляется через `save`).
 @MainActor
 struct SwiftDataBookRepositoryTests {
     private func makeRepository() throws -> (SwiftDataBookRepository, ModelContext) {
