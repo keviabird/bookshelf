@@ -12,9 +12,13 @@ protocol BookRepository {
 
 final class SwiftDataBookRepository: BookRepository {
     private let context: ModelContext
+    private let save: (ModelContext) throws -> Void
 
-    init(context: ModelContext) {
+    /// - Parameter save: сохранение контекста. Подменяется только в тестах, чтобы проверить
+    ///   откат: на базе в памяти настоящий `save()` упасть не может.
+    init(context: ModelContext, save: @escaping (ModelContext) throws -> Void = { try $0.save() }) {
         self.context = context
+        self.save = save
     }
 
     func fetchBooks() throws -> [Book] {
@@ -42,9 +46,13 @@ final class SwiftDataBookRepository: BookRepository {
     private func saveOrRollback(_ change: () -> Void) throws {
         change()
         do {
-            try context.save()
+            try save(context)
         } catch {
             context.rollback()
+            // `rollback()` сбрасывает несохранённое состояние контекста, но уже загруженные объекты
+            // остаются с неудачным изменением (проверено в `SwiftDataWriteFailureTests`).
+            // Повторный запрос перечитывает их из базы — экран снова показывает сохранённые данные.
+            _ = try? context.fetch(FetchDescriptor<Book>())
             throw error
         }
     }

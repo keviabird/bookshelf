@@ -3,7 +3,11 @@ import Foundation
 
 /// Сервис поиска для тестов: записывает запросы и отвечает через `handler`.
 /// `handler` получает запрос и номер вызова (с нуля), может бросить ошибку или ждать `Gate`.
-actor FakeBookSearchService: BookSearchService {
+///
+/// Соответствие `BookSearchService` — в расширении ниже, а не в объявлении: при соответствии
+/// в объявлении Swift 6.3 переносит `nonisolated` с протокола на сам actor и в зависимости
+/// от порядка компиляции файлов выдаёт «'nonisolated' modifier cannot be applied».
+actor FakeBookSearchService {
     typealias Handler = @Sendable (_ query: String, _ call: Int) async throws -> [BookSearchResult]
 
     private(set) var queries: [String] = []
@@ -19,6 +23,8 @@ actor FakeBookSearchService: BookSearchService {
         return try await handler(query, call)
     }
 }
+
+extension FakeBookSearchService: BookSearchService {}
 
 /// Придерживает ответ сервиса, пока тест не вызовет `open()`. На отмену задачи не реагирует —
 /// как сервис, который отмену не поддерживает.

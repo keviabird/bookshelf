@@ -13,7 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - ViewModel помечены `@Observable` и `@MainActor`
 - Тесты: Swift Testing (не XCTest) для логики
 - Не добавлять сторонние зависимости без согласования
-- Модели SwiftData меняются только через `BookRepository`, и каждая операция сразу вызывает `save()`. Никаких изменений моделей напрямую из View/биндингов: при ошибке сохранения репозиторий делает `context.rollback()`, который отменяет **все** несохранённые изменения в контексте
+- Модели SwiftData меняются только через `BookRepository`, и каждая операция сразу вызывает `save()`. Никаких изменений моделей напрямую из View/биндингов: при ошибке сохранения репозиторий делает `context.rollback()`, который отменяет **все** несохранённые изменения в контексте. `rollback()` не возвращает старые значения в уже загруженные объекты — репозиторий после него перечитывает книги из базы (`SwiftDataWriteFailureTests`)
 - После ошибки записи ViewModel перезагружает данные из репозитория, чтобы состояние в памяти совпало с хранилищем
 - Прогресс чтения вычисляется только по страницам (`currentPage / pageCount`), не хранится. Статус и текущую страницу менять только через `Book.setStatus` / `Book.setCurrentPage` внутри `repository.update { … }` — там все правила (например, «Прочитано» → последняя страница)
 - Сеть — только через протокол `BookSearchService`; DTO Open Library не выходят за пределы `Services/Search/`, маппинг DTO → `BookSearchResult` → `Book` только в `OpenLibraryMapper`
@@ -68,7 +68,13 @@ Before implementing UI from Figma (Figma MCP) or adding colors, fonts, icons or 
 
 ## Tests
 
-`BookshelfTests` uses Swift Testing (`@Test`, `#expect`, `#require`), not XCTest. ViewModel tests use an in-memory fake `BookRepository` instead of SwiftData. `BookshelfUITests` (XCTest) is still the Xcode template.
+`BookshelfTests` uses Swift Testing (`@Test`, `#expect`, `#require`, `@Test(arguments:)`), not XCTest. No real network: search tests use `FakeBookSearchService` (actor) with `Gate` / `BlockingSleeper` to hold responses and debounce pauses.
+
+- Unit tests of ViewModels use `InMemoryBookRepository` (a fake that simply doesn't apply changes on failure).
+- Anything about storage, sorting or write failures uses `TestStore` (`TestSupport.swift`): the real `SwiftDataBookRepository` on an in-memory `ModelContainer`, with `failSaves` to make `save()` throw after the change is applied. Check what was persisted via `persistedBooks()` (a fresh `ModelContext`), not the working context.
+- Swift 6.3 quirk: conform test actors to `nonisolated` protocols in an extension (see `FakeBookSearchService`).
+
+`BookshelfUITests` (XCTest) is still the Xcode template.
 
 ## Работа с git
 

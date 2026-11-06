@@ -7,7 +7,7 @@ struct BookSearchViewModelTests {
     /// Debounce без реального ожидания: только проверка отмены.
     private func makeViewModel(
         service: FakeBookSearchService,
-        repository: InMemoryBookRepository = InMemoryBookRepository(),
+        repository: any BookRepository = InMemoryBookRepository(),
         onAdd: @escaping () -> Void = {}
     ) -> BookSearchViewModel {
         BookSearchViewModel(
