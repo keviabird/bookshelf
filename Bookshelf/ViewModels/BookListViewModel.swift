@@ -9,22 +9,37 @@ final class BookListViewModel {
     var isAddingBook = false
     /// Выбранные статусы фильтра. Пустое множество — «Все».
     private(set) var selectedStatuses: Set<ReadingStatus> = []
+    /// Сортировка списка. Меню меняет `sort.key` и `sort.order` по отдельности — сохраняется каждое изменение.
+    var sort: BookSort {
+        didSet {
+            if sort != oldValue { sortStorage.save(sort) }
+        }
+    }
 
     private let repository: BookRepository
     private let searchService: BookSearchService
+    private let sortStorage: BookSortStorage
 
-    init(repository: BookRepository, searchService: BookSearchService = OpenLibrarySearchService()) {
+    init(
+        repository: BookRepository,
+        searchService: BookSearchService = OpenLibrarySearchService(),
+        sortStorage: BookSortStorage = BookSortStorage()
+    ) {
         self.repository = repository
         self.searchService = searchService
+        self.sortStorage = sortStorage
+        self.sort = sortStorage.load()
     }
 
-    // MARK: - Фильтр по статусу
+    // MARK: - Фильтр по статусу и сортировка
 
     var isAllSelected: Bool { selectedStatuses.isEmpty }
 
+    /// Книги на экране: сначала фильтр по статусу, затем сортировка.
+    /// `books` остаётся в порядке репозитория (новые сверху).
     var filteredBooks: [Book] {
-        guard !isAllSelected else { return books }
-        return books.filter { selectedStatuses.contains($0.status) }
+        let visible = isAllSelected ? books : books.filter { selectedStatuses.contains($0.status) }
+        return sort.sorted(visible)
     }
 
     var totalCount: Int { books.count }

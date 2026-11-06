@@ -19,7 +19,11 @@ struct BookListFilteringTests {
             Book(title: "Идиот", author: "Фёдор Достоевский", status: .wantToRead, dateAdded: daysAgo(2)),
         ]
         for book in books { try store.repository.add(book) }
-        let viewModel = BookListViewModel(repository: store.repository, searchService: FakeBookSearchService())
+        let viewModel = BookListViewModel(
+            repository: store.repository,
+            searchService: FakeBookSearchService(),
+            sortStorage: BookSortStorage(defaults: makeIsolatedDefaults())
+        )
         viewModel.loadBooks()
         return (store, viewModel)
     }
@@ -78,7 +82,11 @@ struct BookListFilteringTests {
     @Test func filterWithoutMatchesIsEmptyButShelfIsNot() throws {
         let store = try TestStore()
         try store.repository.add(Book(title: "Война и мир", author: "Толстой", status: .wantToRead))
-        let viewModel = BookListViewModel(repository: store.repository, searchService: FakeBookSearchService())
+        let viewModel = BookListViewModel(
+            repository: store.repository,
+            searchService: FakeBookSearchService(),
+            sortStorage: BookSortStorage(defaults: makeIsolatedDefaults())
+        )
         viewModel.loadBooks()
 
         viewModel.toggle(.finished)

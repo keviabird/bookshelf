@@ -51,6 +51,7 @@ MVVM with a repository layer:
 - `Services/` — `BookRepository` protocol (`fetchBooks`, `add`, `delete`, `update(book) { change }`) + `SwiftDataBookRepository` (wraps `ModelContext`, calls `save()` after each mutation and `rollback()` if the save fails — see the rule above).
 - `Services/Search/` — `BookSearchService` protocol + `OpenLibrarySearchService` (`search.json`, async/await, `URLSession`), DTOs, `BookSearchResult`, `OpenLibraryMapper`. `BookSearchViewModel` debounces input by cancelling the previous `Task` (300 ms, injectable `sleep` for tests); duplicates are checked by `Book.openLibraryKey` or normalized title + author.
 - `ViewModels/` — `@Observable` classes that depend only on `BookRepository`, never on `ModelContext` or `@Query`.
+- Sorting the shelf: `BookSort` (`ViewModels/BookSort.swift`) holds all rules — `localizedStandardCompare` for title/author, books without an author last when sorting by author, ties by title A→Z in either direction, a finished book counts as 100% even without pages. `BookListViewModel.filteredBooks` filters by status first, then sorts; `books` stays in repository order. The choice is saved in UserDefaults by `BookSortStorage` (`Services/`), unknown stored values fall back to `BookSort.default` (date added, newest first).
 - `Views/` — own their ViewModel via `@State`, injected through `init`.
 
 Dependency flow: `App/BookshelfApp` creates the `ModelContainer`, builds `SwiftDataBookRepository(context: mainContext)` and passes it into the root ViewModel. Child ViewModels are created by the parent ViewModel (e.g. `BookListViewModel.makeAddBookViewModel()`) so they share the same repository; after a child saves, the parent reloads via a callback (`onSave` → `loadBooks()`).
@@ -72,6 +73,7 @@ Before implementing UI from Figma (Figma MCP) or adding colors, fonts, icons or 
 
 - Unit tests of ViewModels use `InMemoryBookRepository` (a fake that simply doesn't apply changes on failure).
 - Anything about storage, sorting or write failures uses `TestStore` (`TestSupport.swift`): the real `SwiftDataBookRepository` on an in-memory `ModelContainer`, with `failSaves` to make `save()` throw after the change is applied. Check what was persisted via `persistedBooks()` (a fresh `ModelContext`), not the working context.
+- `BookListViewModel` reads the saved sort from UserDefaults: in tests pass `sortStorage: BookSortStorage(defaults: makeIsolatedDefaults())`, otherwise the sort chosen in the simulator leaks into tests.
 - Swift 6.3 quirk: conform test actors to `nonisolated` protocols in an extension (see `FakeBookSearchService`).
 
 `BookshelfUITests` (XCTest) is still the Xcode template.

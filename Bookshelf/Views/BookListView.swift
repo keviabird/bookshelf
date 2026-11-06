@@ -20,9 +20,9 @@ struct BookListView: View {
         NavigationStack(path: $path) {
             sheetContent
                 .shelfSheetBackground()
-                .shelfNavigationBar(title: "Книжная полка")
+                // Справа две кнопки — заголовок осознанно слева, сразу после лупы.
+                .shelfNavigationBar(title: nil)
                 .toolbar {
-                    // Лупа слева, «+» справа: так заголовок остаётся по центру.
                     // Кнопки панели красятся через tint, foregroundStyle они игнорируют.
                     ToolbarItem(placement: .topBarLeading) {
                         Button {
@@ -32,6 +32,11 @@ struct BookListView: View {
                                 .labelStyle(.iconOnly)
                         }
                         .tint(Theme.Colors.accent)
+                    }
+                    ShelfLeadingTitle("Книжная полка")
+                    ToolbarItem(placement: .topBarTrailing) {
+                        BookSortMenu(sort: $viewModel.sort)
+                            .tint(Theme.Colors.accent)
                     }
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
