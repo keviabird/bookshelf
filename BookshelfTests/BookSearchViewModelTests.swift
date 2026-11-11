@@ -166,6 +166,51 @@ struct BookSearchViewModelTests {
         #expect(viewModel.state == .results([new]))
     }
 
+    /// Жалоба пользователей: быстрый ввод, ответ на «ма» медленный и приходит после ответа на «мастер».
+    @Test func fastTypingWithSlowPreviousResponseShowsLatestResults() async {
+        let slowGate = Gate()
+        let short = searchResult("/works/short", title: "Маугли")
+        let full = searchResult("/works/full", title: "Мастер и Маргарита")
+        let service = FakeBookSearchService { query, _ in
+            if query == "ма" {
+                await slowGate.wait()
+                return [short]
+            }
+            return [full]
+        }
+        let viewModel = makeViewModel(service: service)
+
+        viewModel.query = "ма"
+        await waitUntil { await service.queries.count == 1 }
+        viewModel.query = "мастер"
+        await viewModel.waitForSearch()
+
+        await slowGate.open()
+        await drainTasks()
+
+        #expect(viewModel.query == "мастер")
+        #expect(viewModel.state == .results([full]))
+    }
+
+    /// Поле очистили, пока запрос в пути: опоздавший ответ не должен показаться при пустом запросе.
+    @Test func clearingQueryDuringRequestIgnoresLateResponse() async {
+        let gate = Gate()
+        let service = FakeBookSearchService { _, _ in
+            await gate.wait()
+            return [searchResult("/works/1")]
+        }
+        let viewModel = makeViewModel(service: service)
+
+        viewModel.query = "мастер"
+        await waitUntil { await service.queries.count == 1 }
+        viewModel.query = ""
+
+        await gate.open()
+        await drainTasks()
+
+        #expect(viewModel.state == .idle)
+    }
+
     @Test func cancelledRequestDoesNotShowError() async {
         let gate = Gate()
         let new = searchResult("/works/new")
