@@ -45,7 +45,8 @@ xcodebuild -project Bookshelf.xcodeproj -scheme Bookshelf \
 Simulator notes:
 - Use the **iPhone 17** simulator (iOS 27.2, Xcode 27.2): all unit tests pass on it. Passing it by name works; the `id=` workaround is no longer needed.
 - iOS 27.2 is the only installed runtime: the old iOS 26.5 and 16.4 runtimes are unavailable. After an Xcode update, check `xcrun simctl list devices available` (don't truncate the output) and `xcodebuild -showdestinations`.
-- A full run of `BookshelfTests` takes about 7 minutes on this machine: give the command a timeout of 10 minutes or more.
+- Parallel testing is off in the shared scheme (`parallelizable = "NO"`): otherwise Xcode boots a fresh simulator clone for every run, which takes ~6.5 minutes on iOS 27.2. Swift Testing still runs tests in parallel inside one process. Don't turn it back on.
+- A full run of `BookshelfTests` takes about 1 minute (the tests themselves ~2 s; the first run after the simulator was shut down ~2 minutes). In this mode the log counts a parameterized test once ("164 tests"), not per argument.
 
 ## Architecture
 
