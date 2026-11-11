@@ -69,6 +69,7 @@ struct BookSearchView: View {
         }
         // Не сжимать до «На…»: тогда `ViewThatFits` выберет вариант в столбик.
         .fixedSize(horizontal: true, vertical: false)
+        .accessibilityIdentifier(AccessibilityID.Search.addButton(result.id))
     }
 
     private func resultList(_ results: [BookSearchResult]) -> some View {

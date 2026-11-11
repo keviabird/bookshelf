@@ -32,6 +32,7 @@ struct BookListView: View {
                                 .labelStyle(.iconOnly)
                         }
                         .tint(Theme.Colors.accent)
+                        .accessibilityIdentifier(AccessibilityID.Shelf.searchButton)
                     }
                     ShelfLeadingTitle("Книжная полка")
                     ToolbarItem(placement: .topBarTrailing) {
@@ -141,6 +142,7 @@ struct BookListView: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityHint("Открыть карточку книги")
+                .accessibilityIdentifier(AccessibilityID.Shelf.bookRow(book.openLibraryKey ?? book.title))
                 .listRowInsets(EdgeInsets(top: 24, leading: 24, bottom: 24, trailing: 24))
                 .listRowBackground(Color.clear)
                 // Разделитель на всю ширину, как в макете.

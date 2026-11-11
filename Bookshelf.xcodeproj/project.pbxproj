@@ -45,6 +45,11 @@
 			path = BookshelfUITests;
 			sourceTree = "<group>";
 		};
+		0778C0DE308FA24E0078761C /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +83,7 @@
 				0778348C308FA24B0078761C /* Bookshelf */,
 				0778349C308FA24E0078761C /* BookshelfTests */,
 				077834A6308FA24E0078761C /* BookshelfUITests */,
+				0778C0DE308FA24E0078761C /* Shared */,
 				0778348B308FA24B0078761C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -109,6 +115,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				0778348C308FA24B0078761C /* Bookshelf */,
+				0778C0DE308FA24E0078761C /* Shared */,
 			);
 			name = Bookshelf;
 			packageProductDependencies = (
@@ -155,6 +162,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				077834A6308FA24E0078761C /* BookshelfUITests */,
+				0778C0DE308FA24E0078761C /* Shared */,
 			);
 			name = BookshelfUITests;
 			packageProductDependencies = (

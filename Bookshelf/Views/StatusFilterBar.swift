@@ -24,6 +24,7 @@ struct StatusFilterBar: View {
     private var chips: some View {
         HStack(spacing: 10) {
             StatusChip(title: "Все", count: totalCount, isSelected: isAllSelected, action: onSelectAll)
+                .accessibilityIdentifier(AccessibilityID.Shelf.filterAll)
             ForEach(ReadingStatus.allCases) { status in
                 StatusChip(
                     title: status.title,
@@ -31,6 +32,7 @@ struct StatusFilterBar: View {
                     isSelected: isSelected(status),
                     action: { onToggle(status) }
                 )
+                .accessibilityIdentifier(AccessibilityID.Shelf.filterChip(status.rawValue))
             }
         }
     }
