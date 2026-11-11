@@ -8,7 +8,7 @@ nonisolated struct BookSearchResult: Identifiable, Hashable, Sendable {
     /// Авторы через запятую; пустая строка, если неизвестны.
     let author: String
     let coverURL: URL?
-    let firstPublishYear: Int!
+    let firstPublishYear: Int?
     /// nil — число страниц неизвестно.
     let pageCount: Int?
 }

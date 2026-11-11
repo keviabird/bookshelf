@@ -57,7 +57,7 @@ final class BookSearchViewModel {
     /// Debounce через отмену: каждый ввод отменяет прошлую задачу. Она либо ещё ждёт паузу
     /// (и до сети не доходит), либо ждёт ответ (отмена прерывает запрос в `URLSession`).
     private func scheduleSearch() {
-//        searchTask?.cancel()
+        searchTask?.cancel()
         let text = trimmedQuery
         guard text.count >= Self.minQueryLength else {
             searchTask = nil

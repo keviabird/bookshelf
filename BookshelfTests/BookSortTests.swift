@@ -174,6 +174,22 @@ struct BookSortTests {
         #expect(sorted(books, by: key, order) == ["анна", "Бесы", "Война"])
     }
 
+    /// Книги с равным ключом идут по названию при любом исходном порядке (порядок из базы не гарантирован).
+    @Test(arguments: tieCases)
+    func tieOrderDoesNotDependOnInputOrder(key: BookSortKey, order: BookSortOrder) {
+        let date = daysAgo(3)
+        let books = [
+            Book(title: "Бесы", author: "Толстой", status: .reading, pageCount: 100, currentPage: 50, dateAdded: date),
+            Book(title: "Война", author: "Толстой", status: .reading, pageCount: 100, currentPage: 50, dateAdded: date),
+            Book(title: "анна", author: "Толстой", status: .reading, pageCount: 100, currentPage: 50, dateAdded: date),
+        ]
+        let permutations = [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]]
+        for indices in permutations {
+            let input = indices.map { books[$0] }
+            #expect(sorted(input, by: key, order) == ["анна", "Бесы", "Война"], "вход: \(input.map(\.title))")
+        }
+    }
+
     @Test func tieBreakDoesNotOverrideMainKey() {
         let books = [
             Book(title: "Аа", author: "Яковлев"),

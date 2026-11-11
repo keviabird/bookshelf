@@ -98,6 +98,6 @@ extension BookSort {
     }
 
     private static func compare<T: Comparable>(_ lhs: T, _ rhs: T) -> ComparisonResult {
-        lhs <= rhs ? .orderedAscending : (lhs > rhs ? .orderedDescending : .orderedSame)
+        lhs < rhs ? .orderedAscending : (lhs > rhs ? .orderedDescending : .orderedSame)
     }
 }
