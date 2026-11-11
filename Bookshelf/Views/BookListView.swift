@@ -165,6 +165,7 @@ struct BookListView: View {
     }
 }
 
+#if DEBUG
 #Preview("С книгами") {
     let container = SampleData.makeContainer()
     return BookListView(
@@ -173,6 +174,7 @@ struct BookListView: View {
         )
     )
 }
+#endif
 
 #Preview("Пусто") {
     let container = try! ModelContainer(

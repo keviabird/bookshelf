@@ -133,6 +133,7 @@ struct BookDetailView: View {
     }
 }
 
+#if DEBUG
 #Preview("Читаю") {
     let container = SampleData.makeContainer()
     let book = try! container.mainContext.fetch(FetchDescriptor<Book>()).first { $0.status == .reading }!
@@ -143,6 +144,7 @@ struct BookDetailView: View {
         ))
     }
 }
+#endif
 
 #Preview("Без страниц и описания") {
     let container = try! ModelContainer(for: Book.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
