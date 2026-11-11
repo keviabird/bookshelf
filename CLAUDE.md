@@ -59,7 +59,7 @@ MVVM with a repository layer:
 - Sorting the shelf: `BookSort` (`ViewModels/BookSort.swift`) holds all rules — `localizedStandardCompare` for title/author, books without an author last when sorting by author, ties by title A→Z in either direction, a finished book counts as 100% even without pages. `BookListViewModel.filteredBooks` filters by status first, then sorts; `books` stays in repository order. The choice is saved in UserDefaults by `BookSortStorage` (`Services/`), unknown stored values fall back to `BookSort.default` (date added, newest first).
 - `Views/` — own their ViewModel via `@State`, injected through `init`.
 
-Dependency flow: `App/BookshelfApp` creates the `ModelContainer`, builds `SwiftDataBookRepository(context: mainContext)` and passes it into the root ViewModel. Child ViewModels are created by the parent ViewModel (e.g. `BookListViewModel.makeAddBookViewModel()`) so they share the same repository; after a child saves, the parent reloads via a callback (`onSave` → `loadBooks()`).
+Dependency flow: `App/AppDependencies.make()` is the only place that picks dependencies by launch arguments (live, `-seedSampleBooks`, `-uiTesting`): `ModelContainer`, `BookSearchService`, `BookSortStorage`. Don't add launch-mode checks to ViewModels or Views — add a branch there. `App/BookshelfApp` calls it once, builds `SwiftDataBookRepository(context: mainContext)` and passes everything into the root ViewModel. Child ViewModels are created by the parent ViewModel (e.g. `BookListViewModel.makeAddBookViewModel()`) so they share the same repository; after a child saves, the parent reloads via a callback (`onSave` → `loadBooks()`).
 
 Views do not use `@Query` — data goes through ViewModel → repository so ViewModels stay testable. Previews build an in-memory `ModelContainer`.
 
@@ -70,7 +70,8 @@ Before implementing UI from Figma (Figma MCP) or adding colors, fonts, icons or 
 ## Build settings that affect code
 
 - `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` in the app target: all types are implicitly `@MainActor`. Tests touching ViewModels must be marked `@MainActor`.
-- The Xcode project uses file-system-synchronized groups: new files/folders under `Bookshelf/`, `BookshelfTests/` are picked up automatically — don't edit `project.pbxproj` to add files.
+- The Xcode project uses file-system-synchronized groups: new files/folders under `Bookshelf/`, `BookshelfTests/`, `BookshelfUITests/` are picked up automatically — don't edit `project.pbxproj` to add files.
+- `Shared/` is a synchronized folder in both `Bookshelf` and `BookshelfUITests` (UI tests can't import the app module). Put code both need there (now `AccessibilityID`); it compiles in the app's Release build too, so test-only parts go under `#if DEBUG`.
 
 ## Tests
 
@@ -78,6 +79,7 @@ Before implementing UI from Figma (Figma MCP) or adding colors, fonts, icons or 
   `xcodebuild test -project Bookshelf.xcodeproj -scheme Bookshelf -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:BookshelfTests/<Suite>`
 - Перед коммитом — полный прогон. Не коммить с падающими тестами.
 - Логика — Swift Testing. UI-тесты — XCTest (XCUITest): Swift Testing не умеет UI-тесты.
+- Если UI-тест не находит элемент — сначала выведи `app.debugDescription` (`print` в тесте, вывод — в логе `xcodebuild`), потом ищи элемент по фактическому дереву, а не по догадкам. Отладочный `print` перед коммитом убрать.
 
 `BookshelfTests` uses Swift Testing (`@Test`, `#expect`, `#require`, `@Test(arguments:)`), not XCTest. No real network: search tests use `FakeBookSearchService` (actor) with `Gate` / `BlockingSleeper` to hold responses and debounce pauses.
 
@@ -86,7 +88,11 @@ Before implementing UI from Figma (Figma MCP) or adding colors, fonts, icons or 
 - `BookListViewModel` reads the saved sort from UserDefaults: in tests pass `sortStorage: BookSortStorage(defaults: makeIsolatedDefaults())`, otherwise the sort chosen in the simulator leaks into tests.
 - Swift 6.3 quirk: conform test actors to `nonisolated` protocols in an extension (see `FakeBookSearchService`).
 
-`BookshelfUITests` (XCTest) is still the Xcode template.
+`BookshelfUITests` (XCTest):
+- Launch with `AccessibilityID.LaunchArgument.uiTesting`: `UITestSupport` (DEBUG only) gives an empty in-memory store, isolated UserDefaults for the sort and `UITestBookSearchService` with fixed books (ids in `AccessibilityID.UITestFixture`, no covers) — no network, no state from earlier runs.
+- Find elements only by `AccessibilityID` constants (`Shared/AccessibilityID.swift`), never by on-screen text. Exceptions without a SwiftUI identifier API: the `.searchable` field (`app.searchFields.firstMatch`), the close-search button (the only direct button child of the navigation bar while search is active; iOS hides Back until search is closed) and the system Back button (`navigationBars.buttons["BackButton"]`).
+- No `sleep`: only `waitForExistence(timeout:)`. After tapping the search field wait for `app.keyboards.firstMatch`: the first tap sometimes only activates search without focus, then tap again.
+- One UI test run takes ~2–6 minutes (app launch and automation setup in the simulator are slow): run it alone with `-only-testing:BookshelfUITests/<Class>`, timeout 10 minutes. `BookshelfUITests.swift` / `BookshelfUITestsLaunchTests.swift` are still the Xcode template.
 
 ## Работа с git
 

@@ -10,27 +10,19 @@ import SwiftData
 
 @main
 struct BookshelfApp: App {
-    private let modelContainer: ModelContainer = {
-        #if DEBUG
-        if ProcessInfo.processInfo.arguments.contains(SampleData.launchArgument) {
-            return SampleData.makeContainer()
-        }
-        #endif
-        do {
-            return try ModelContainer(for: Book.self)
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+    /// Режим запуска (боевой, примеры книг, UI-тест) выбирается только в `AppDependencies`.
+    private let dependencies = AppDependencies.make()
 
     var body: some Scene {
         WindowGroup {
             BookListView(
                 viewModel: BookListViewModel(
-                    repository: SwiftDataBookRepository(context: modelContainer.mainContext)
+                    repository: SwiftDataBookRepository(context: dependencies.container.mainContext),
+                    searchService: dependencies.searchService,
+                    sortStorage: dependencies.sortStorage
                 )
             )
         }
-        .modelContainer(modelContainer)
+        .modelContainer(dependencies.container)
     }
 }
