@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-«Книжная полка» — iOS app on SwiftUI + SwiftData. Deployment target is **iOS 17.0** (built with Xcode 26), so APIs newer than iOS 17 need `if #available` checks. UI strings are in Russian.
+«Книжная полка» — iOS app on SwiftUI + SwiftData. Deployment target is **iOS 17.0** (built with Xcode 27), so APIs newer than iOS 17 need `if #available` checks. UI strings are in Russian.
 
 ## Правила проекта
 
@@ -28,20 +28,24 @@ No SPM dependencies, no linter configured.
 xcodebuild -project Bookshelf.xcodeproj -scheme Bookshelf \
   -destination 'generic/platform=iOS Simulator' build-for-testing
 
-# Run unit tests (destination must be passed by id, see notes below)
-SIM=$(xcrun simctl list devices available | grep -m1 "iPhone 17 (" | grep -oE '[0-9A-F-]{36}')
+# Run unit tests
 xcodebuild -project Bookshelf.xcodeproj -scheme Bookshelf \
-  -destination "id=$SIM" -only-testing:BookshelfTests test
+  -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:BookshelfTests test
+
+# Run one suite (after changing logic)
+xcodebuild -project Bookshelf.xcodeproj -scheme Bookshelf \
+  -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:BookshelfTests/BookSortTests test
 
 # Run a single test (Swift Testing: Target/Suite/testFunction())
-xcodebuild -project Bookshelf.xcodeproj -scheme Bookshelf -destination "id=$SIM" \
+xcodebuild -project Bookshelf.xcodeproj -scheme Bookshelf \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
   -only-testing:'BookshelfTests/AddBookViewModelTests/savesTrimmedBook()' test
 ```
 
 Simulator notes:
-- On this machine `-destination 'platform=iOS Simulator,name=…'` fails with "Unable to find a device matching the provided destination specifier"; pass the simulator by `id=` instead.
-- Use the **iPhone 17** simulator (iOS 26.5). The iPhone 17 Pro simulator fails to launch the app ("No such process"), which is a simulator issue, not an app bug. The iOS 16.4 simulators are below the deployment target.
-- Don't truncate `simctl list` output when looking for devices.
+- Use the **iPhone 17** simulator (iOS 27.2, Xcode 27.2): all unit tests pass on it. Passing it by name works; the `id=` workaround is no longer needed.
+- iOS 27.2 is the only installed runtime: the old iOS 26.5 and 16.4 runtimes are unavailable. After an Xcode update, check `xcrun simctl list devices available` (don't truncate the output) and `xcodebuild -showdestinations`.
+- A full run of `BookshelfTests` takes about 7 minutes on this machine: give the command a timeout of 10 minutes or more.
 
 ## Architecture
 
@@ -68,6 +72,11 @@ Before implementing UI from Figma (Figma MCP) or adding colors, fonts, icons or 
 - The Xcode project uses file-system-synchronized groups: new files/folders under `Bookshelf/`, `BookshelfTests/` are picked up automatically — don't edit `project.pbxproj` to add files.
 
 ## Tests
+
+- После изменения логики — прогоняй тесты затронутого модуля:
+  `xcodebuild test -project Bookshelf.xcodeproj -scheme Bookshelf -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:BookshelfTests/<Suite>`
+- Перед коммитом — полный прогон. Не коммить с падающими тестами.
+- Логика — Swift Testing. UI-тесты — XCTest (XCUITest): Swift Testing не умеет UI-тесты.
 
 `BookshelfTests` uses Swift Testing (`@Test`, `#expect`, `#require`, `@Test(arguments:)`), not XCTest. No real network: search tests use `FakeBookSearchService` (actor) with `Gate` / `BlockingSleeper` to hold responses and debounce pauses.
 
