@@ -97,6 +97,7 @@ Before implementing UI from Figma (Figma MCP) or adding colors, fonts, icons or 
 ## Работа с git
 
 - Каждая фича — отдельная ветка `feature/<название>`
+- Каждое исправление ошибки — отдельная ветка `bugfix/<название>`
 - Коммиты на английском, в повелительном наклонении
 
 Remote `origin` is `git@github.com:keviabird/bookshelf.git` (SSH, key `~/.ssh/id_ed25519_github`), branch `main`.
