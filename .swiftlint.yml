@@ -1,0 +1,11 @@
+included:
+  - Bookshelf
+  - BookshelfTests
+  - BookshelfUITests
+opt_in_rules:
+  - force_unwrapping      # тот самый краш с недели 3
+  - empty_count
+  - first_where
+  - sorted_first_last
+line_length:
+  warning: 140
