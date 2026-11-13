@@ -13,7 +13,7 @@ struct BookListSortingTests {
             Book(title: "Пикник", author: "Стругацкие", status: .reading, pageCount: 100, currentPage: 20, dateAdded: daysAgo(3)),
             Book(title: "Мы", author: "", status: .finished, dateAdded: daysAgo(1)),
             Book(title: "Мастер", author: "Михаил Булгаков", status: .reading, pageCount: 100, currentPage: 70, dateAdded: daysAgo(0)),
-            Book(title: "Идиот", author: "Фёдор Достоевский", status: .wantToRead, dateAdded: daysAgo(2)),
+            Book(title: "Идиот", author: "Фёдор Достоевский", status: .wantToRead, dateAdded: daysAgo(2))
         ]
         for book in books { try store.repository.add(book) }
         let viewModel = makeViewModel(store: store, defaults: defaults)
@@ -43,7 +43,7 @@ struct BookListSortingTests {
         (BookSort(key: .author, order: .ascending), ["Война и мир", "Мастер", "Пикник", "Идиот", "Мы"]),
         (BookSort(key: .author, order: .descending), ["Идиот", "Пикник", "Мастер", "Война и мир", "Мы"]),
         (BookSort(key: .progress, order: .descending), ["Мы", "Мастер", "Пикник", "Война и мир", "Идиот"]),
-        (BookSort(key: .dateAdded, order: .ascending), ["Война и мир", "Пикник", "Идиот", "Мы", "Мастер"]),
+        (BookSort(key: .dateAdded, order: .ascending), ["Война и мир", "Пикник", "Идиот", "Мы", "Мастер"])
     ])
     func changingSortReordersList(sort: BookSort, expected: [String]) throws {
         let (_, viewModel) = try makeShelf()
@@ -57,7 +57,7 @@ struct BookListSortingTests {
     nonisolated static let filterCases: [(Set<ReadingStatus>, [String])] = [
         ([.reading], ["Мастер", "Пикник"]),
         ([.wantToRead], ["Война и мир", "Идиот"]),
-        ([.reading, .finished], ["Мастер", "Мы", "Пикник"]),
+        ([.reading, .finished], ["Мастер", "Мы", "Пикник"])
     ]
 
     @Test(arguments: filterCases)
@@ -137,7 +137,7 @@ struct BookListSortingTests {
         (BookSort(key: .author, order: .descending), ["Идиот", "Пикник", "Мастер", "Война и мир", "Белая гвардия", "Мы"]),
         (BookSort(key: .progress, order: .descending), ["Мы", "Мастер", "Пикник", "Белая гвардия", "Война и мир", "Идиот"]),
         (BookSort(key: .dateAdded, order: .descending), ["Белая гвардия", "Мастер", "Мы", "Идиот", "Пикник", "Война и мир"]),
-        (BookSort(key: .dateAdded, order: .ascending), ["Война и мир", "Пикник", "Идиот", "Мы", "Мастер", "Белая гвардия"]),
+        (BookSort(key: .dateAdded, order: .ascending), ["Война и мир", "Пикник", "Идиот", "Мы", "Мастер", "Белая гвардия"])
     ])
     func bookAddedFromFormFollowsSort(sort: BookSort, expected: [String]) throws {
         let (_, viewModel) = try makeShelf()

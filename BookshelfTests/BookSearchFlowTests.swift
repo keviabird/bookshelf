@@ -45,7 +45,7 @@ struct BookSearchFlowTests {
         .found(20),
         .nothing,
         .fails(URLError(.notConnectedToInternet)),
-        .fails(BookSearchError.badStatus(500)),
+        .fails(BookSearchError.badStatus(500))
     ])
     func loadingThenOutcome(outcome: Outcome) async {
         let gate = Gate()
@@ -78,7 +78,7 @@ struct BookSearchFlowTests {
 
     @Test(arguments: [
         URLError.Code.notConnectedToInternet, .networkConnectionLost, .dataNotAllowed,
-        .cannotFindHost, .cannotConnectToHost, .timedOut,
+        .cannotFindHost, .cannotConnectToHost, .timedOut
     ])
     func networkErrorsSayNoConnection(code: URLError.Code) {
         #expect(BookSearchViewModel.message(for: URLError(code))
@@ -89,7 +89,7 @@ struct BookSearchFlowTests {
         BookSearchError.badStatus(500) as any Error,
         BookSearchError.badStatus(503),
         URLError(.badServerResponse),
-        DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "не JSON")),
+        DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "не JSON"))
     ])
     func otherErrorsSayServiceUnavailable(error: any Error) {
         #expect(BookSearchViewModel.message(for: error) == "Сервис поиска недоступен. Попробуйте позже.")
@@ -200,7 +200,7 @@ struct BookSearchFlowTests {
         ("  Мы ", "Евгений  Замятин", "Мы", "Евгений Замятин", true),
         ("Мастер и Маргарита", "Михаил Булгаков", "Мастер и Маргарита", "Mikhail Bulgakov", false),
         ("Мастер и Маргарита", "Михаил Булгаков", "Собачье сердце", "Михаил Булгаков", false),
-        ("Мы", "", "Мы", "Евгений Замятин", false),
+        ("Мы", "", "Мы", "Евгений Замятин", false)
     ])
     func manualBookDuplicateRules(
         shelfTitle: String, shelfAuthor: String,

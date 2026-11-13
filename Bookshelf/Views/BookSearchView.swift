@@ -42,7 +42,8 @@ struct BookSearchView: View {
             ContentUnavailableView {
                 Label("Ничего не найдено", systemImage: "magnifyingglass")
             } description: {
-                Text("По запросу «\(viewModel.query.trimmingCharacters(in: .whitespacesAndNewlines))» книг нет. Проверьте написание или попробуйте другой запрос.")
+                let query = viewModel.query.trimmingCharacters(in: .whitespacesAndNewlines)
+                Text("По запросу «\(query)» книг нет. Проверьте написание или попробуйте другой запрос.")
             }
         case .failed(let message):
             ContentUnavailableView {
@@ -117,7 +118,7 @@ private struct PreviewSearchService: BookSearchService {
             BookSearchResult(id: "/works/1", title: "Мастер и Маргарита", author: "Михаил Булгаков",
                              coverURL: nil, firstPublishYear: 1967, pageCount: 480),
             BookSearchResult(id: "/works/2", title: "Собачье сердце", author: "Михаил Булгаков",
-                             coverURL: nil, firstPublishYear: 1987, pageCount: nil),
+                             coverURL: nil, firstPublishYear: 1987, pageCount: nil)
         ]
     }
 }

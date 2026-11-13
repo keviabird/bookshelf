@@ -4,6 +4,13 @@ import Testing
 
 @MainActor
 struct BookDetailViewModelTests {
+    private static let dateAdded: Date = {
+        guard let date = Calendar.current.date(from: DateComponents(year: 2026, month: 10, day: 12, hour: 12)) else {
+            preconditionFailure("Некорректная дата для тестов")
+        }
+        return date
+    }()
+
     private func makeBook(
         status: ReadingStatus = .reading,
         pageCount: Int = 498,
@@ -19,7 +26,7 @@ struct BookDetailViewModelTests {
             currentPage: currentPage,
             publicationYear: year,
             bookDescription: description,
-            dateAdded: Calendar.current.date(from: DateComponents(year: 2026, month: 10, day: 12, hour: 12))!
+            dateAdded: Self.dateAdded
         )
     }
 
@@ -34,7 +41,7 @@ struct BookDetailViewModelTests {
         #expect(viewModel.stats == [
             .init(value: "498", label: "страниц"),
             .init(value: "2023", label: "год"),
-            .init(value: "12.10", label: "добавлена"),
+            .init(value: "12.10", label: "добавлена")
         ])
         #expect(viewModel.hasDescription)
     }

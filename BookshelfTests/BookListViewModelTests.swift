@@ -52,16 +52,12 @@ struct BookListViewModelTests {
             Book(title: "Пикник на обочине", author: "", status: .reading),
             Book(title: "Война и мир", author: "", status: .wantToRead),
             Book(title: "Анна Каренина", author: "", status: .wantToRead),
-            Book(title: "Мы", author: "", status: .finished),
+            Book(title: "Мы", author: "", status: .finished)
         ]
         let viewModel = BookListViewModel(repository: repository)
         viewModel.loadBooks()
         return viewModel
     }
-
-
-
-
 
     @Test func togglingSelectedStatusRemovesIt() {
         let viewModel = makeLoadedViewModel()

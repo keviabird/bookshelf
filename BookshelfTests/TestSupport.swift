@@ -51,7 +51,9 @@ final class TestStore {
 /// Пустой набор UserDefaults для одного теста: тесты не читают и не портят настройки приложения.
 func makeIsolatedDefaults() -> UserDefaults {
     let name = "BookshelfTests.\(UUID().uuidString)"
-    let defaults = UserDefaults(suiteName: name)!
+    guard let defaults = UserDefaults(suiteName: name) else {
+        preconditionFailure("Не удалось создать UserDefaults(suiteName: \(name))")
+    }
     defaults.removePersistentDomain(forName: name)
     return defaults
 }

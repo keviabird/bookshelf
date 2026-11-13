@@ -19,7 +19,7 @@ struct BookSortTests {
         (BookSortKey.dateAdded, "Дата добавления"),
         (.title, "Название"),
         (.author, "Автор"),
-        (.progress, "Прогресс"),
+        (.progress, "Прогресс")
     ])
     func keyTitles(key: BookSortKey, title: String) {
         #expect(key.title == title)
@@ -34,13 +34,13 @@ struct BookSortTests {
 
     @Test(arguments: [
         (BookSortOrder.descending, ["Новая", "Средняя", "Старая"]),
-        (.ascending, ["Старая", "Средняя", "Новая"]),
+        (.ascending, ["Старая", "Средняя", "Новая"])
     ])
     func sortsByDateAdded(order: BookSortOrder, expected: [String]) {
         let books = [
             Book(title: "Средняя", author: "А", dateAdded: daysAgo(5)),
             Book(title: "Старая", author: "А", dateAdded: daysAgo(30)),
-            Book(title: "Новая", author: "А", dateAdded: daysAgo(0)),
+            Book(title: "Новая", author: "А", dateAdded: daysAgo(0))
         ]
         #expect(sorted(books, by: .dateAdded, order) == expected)
     }
@@ -93,7 +93,7 @@ struct BookSortTests {
             Book(title: "Пикник", author: "Ёлкин"),
             Book(title: "Мы", author: "булгаков"),
             Book(title: "Идиот", author: "Елизаров"),
-            Book(title: "Бесы", author: "Абрамов"),
+            Book(title: "Бесы", author: "Абрамов")
         ]
         let ascending = ["Бесы", "Мы", "Идиот", "Пикник"] // Абрамов, булгаков, Елизаров, Ёлкин
 
@@ -103,14 +103,14 @@ struct BookSortTests {
     /// Пустой автор и автор из пробелов — «без автора»: всегда в конце, между собой по названию.
     @Test(arguments: [
         (BookSortOrder.ascending, ["Бесы", "Война и мир", "Азбука", "Яма"]),
-        (.descending, ["Война и мир", "Бесы", "Азбука", "Яма"]),
+        (.descending, ["Война и мир", "Бесы", "Азбука", "Яма"])
     ])
     func booksWithoutAuthorGoLast(order: BookSortOrder, expected: [String]) {
         let books = [
             Book(title: "Яма", author: ""),
             Book(title: "Война и мир", author: "Толстой"),
             Book(title: "Азбука", author: "   "),
-            Book(title: "Бесы", author: "Достоевский"),
+            Book(title: "Бесы", author: "Достоевский")
         ]
         #expect(sorted(books, by: .author, order) == expected)
     }
@@ -119,7 +119,7 @@ struct BookSortTests {
     @Test func bookWithoutAuthorIsNotMovedForOtherKeys() {
         let books = [
             Book(title: "Бесы", author: "Достоевский", dateAdded: daysAgo(1)),
-            Book(title: "Азбука", author: "", dateAdded: daysAgo(0)),
+            Book(title: "Азбука", author: "", dateAdded: daysAgo(0))
         ]
         #expect(sorted(books, by: .title, .ascending) == ["Азбука", "Бесы"])
         #expect(sorted(books, by: .dateAdded, .descending) == ["Азбука", "Бесы"])
@@ -129,14 +129,14 @@ struct BookSortTests {
 
     @Test(arguments: [
         (BookSortOrder.ascending, ["Не начата", "10%", "50%", "Прочитана"]),
-        (.descending, ["Прочитана", "50%", "10%", "Не начата"]),
+        (.descending, ["Прочитана", "50%", "10%", "Не начата"])
     ])
     func sortsByProgress(order: BookSortOrder, expected: [String]) {
         let books = [
             Book(title: "50%", author: "А", status: .reading, pageCount: 100, currentPage: 50),
             Book(title: "Прочитана", author: "А", status: .finished, pageCount: 300),
             Book(title: "Не начата", author: "А", status: .wantToRead, pageCount: 200),
-            Book(title: "10%", author: "А", status: .reading, pageCount: 100, currentPage: 10),
+            Book(title: "10%", author: "А", status: .reading, pageCount: 100, currentPage: 10)
         ]
         #expect(sorted(books, by: .progress, order) == expected)
     }
@@ -148,7 +148,7 @@ struct BookSortTests {
             Book(title: "Прочитана без страниц", author: "А", status: .finished),
             Book(title: "Читаю без страниц", author: "А", status: .reading),
             Book(title: "Половина", author: "А", status: .reading, pageCount: 100, currentPage: 50),
-            Book(title: "Аа не начата", author: "А", status: .wantToRead),
+            Book(title: "Аа не начата", author: "А", status: .wantToRead)
         ]
         #expect(sorted(books, by: .progress, .descending)
             == ["Прочитана без страниц", "Половина", "Аа не начата", "Читаю без страниц"])
@@ -159,7 +159,7 @@ struct BookSortTests {
     nonisolated static let tieCases: [(BookSortKey, BookSortOrder)] = [
         (.dateAdded, .ascending), (.dateAdded, .descending),
         (.author, .ascending), (.author, .descending),
-        (.progress, .ascending), (.progress, .descending),
+        (.progress, .ascending), (.progress, .descending)
     ]
 
     /// При равном основном ключе — название по алфавиту, в любом направлении.
@@ -169,7 +169,7 @@ struct BookSortTests {
         let books = [
             Book(title: "Война", author: "Толстой", status: .reading, pageCount: 100, currentPage: 40, dateAdded: date),
             Book(title: "анна", author: "Толстой", status: .reading, pageCount: 200, currentPage: 80, dateAdded: date),
-            Book(title: "Бесы", author: "Толстой", status: .reading, pageCount: 50, currentPage: 20, dateAdded: date),
+            Book(title: "Бесы", author: "Толстой", status: .reading, pageCount: 50, currentPage: 20, dateAdded: date)
         ]
         #expect(sorted(books, by: key, order) == ["анна", "Бесы", "Война"])
     }
@@ -181,7 +181,7 @@ struct BookSortTests {
         let books = [
             Book(title: "Бесы", author: "Толстой", status: .reading, pageCount: 100, currentPage: 50, dateAdded: date),
             Book(title: "Война", author: "Толстой", status: .reading, pageCount: 100, currentPage: 50, dateAdded: date),
-            Book(title: "анна", author: "Толстой", status: .reading, pageCount: 100, currentPage: 50, dateAdded: date),
+            Book(title: "анна", author: "Толстой", status: .reading, pageCount: 100, currentPage: 50, dateAdded: date)
         ]
         let permutations = [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]]
         for indices in permutations {
@@ -193,7 +193,7 @@ struct BookSortTests {
     @Test func tieBreakDoesNotOverrideMainKey() {
         let books = [
             Book(title: "Аа", author: "Яковлев"),
-            Book(title: "Яя", author: "Абрамов"),
+            Book(title: "Яя", author: "Абрамов")
         ]
         #expect(sorted(books, by: .author, .ascending) == ["Яя", "Аа"])
     }

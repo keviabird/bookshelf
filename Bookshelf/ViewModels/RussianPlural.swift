@@ -8,9 +8,9 @@ nonisolated enum RussianPlural {
     ///   - few: форма для 2–4, 22–24… («книги»)
     ///   - many: форма для 0, 5–20, 11–14, 25… («книг»)
     static func form(for count: Int, one: String, few: String, many: String) -> String {
-        let n = abs(count)
-        let lastTwo = n % 100
-        let last = n % 10
+        let number = abs(count)
+        let lastTwo = number % 100
+        let last = number % 10
         if (11...14).contains(lastTwo) { return many }
         switch last {
         case 1: return one

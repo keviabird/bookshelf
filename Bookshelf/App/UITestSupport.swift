@@ -54,7 +54,7 @@ nonisolated struct UITestBookSearchService: BookSearchService {
             coverURL: nil,
             firstPublishYear: 1969,
             pageCount: 256
-        ),
+        )
     ]
 
     func search(_ query: String) async throws -> [BookSearchResult] {

@@ -16,7 +16,7 @@ struct BookListFilteringTests {
             Book(title: "Мы", author: "Евгений Замятин", status: .finished, dateAdded: daysAgo(1)),
             Book(title: "Отцы и дети", author: "Иван Тургенев", status: .finished, dateAdded: daysAgo(4)),
             Book(title: "Мастер", author: "Михаил Булгаков", status: .reading, dateAdded: daysAgo(0)),
-            Book(title: "Идиот", author: "Фёдор Достоевский", status: .wantToRead, dateAdded: daysAgo(2)),
+            Book(title: "Идиот", author: "Фёдор Достоевский", status: .wantToRead, dateAdded: daysAgo(2))
         ]
         for book in books { try store.repository.add(book) }
         let viewModel = BookListViewModel(
@@ -41,7 +41,7 @@ struct BookListFilteringTests {
         ([.reading, .finished], ["Мастер", "Мы", "Пикник", "Отцы и дети"]),
         ([.wantToRead, .finished], ["Мы", "Идиот", "Отцы и дети", "Война и мир"]),
         // Все три статуса — то же самое, что «Все».
-        (Set(ReadingStatus.allCases), newestFirst),
+        (Set(ReadingStatus.allCases), newestFirst)
     ]
 
     @Test(arguments: filterCases)
@@ -67,10 +67,10 @@ struct BookListFilteringTests {
 
     @Test func statusChangeMovesBookToAnotherFilter() throws {
         let (store, viewModel) = try makeShelf()
-        let master = try #require(viewModel.books.first { $0.title == "Мастер" })
+        let bulgakov = try #require(viewModel.books.first { $0.title == "Мастер" })
         viewModel.toggle(.reading)
 
-        try store.repository.update(master) { $0.setStatus(.finished) }
+        try store.repository.update(bulgakov) { $0.setStatus(.finished) }
         viewModel.loadBooks()
 
         #expect(viewModel.filteredBooks.map(\.title) == ["Пикник"])

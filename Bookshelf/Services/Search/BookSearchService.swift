@@ -10,4 +10,6 @@ nonisolated protocol BookSearchService: Sendable {
 nonisolated enum BookSearchError: Error, Equatable {
     /// Сервер ответил не 2xx.
     case badStatus(Int)
+    /// Не удалось собрать адрес запроса.
+    case invalidRequest
 }

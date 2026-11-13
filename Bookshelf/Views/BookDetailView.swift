@@ -135,8 +135,9 @@ struct BookDetailView: View {
 
 #if DEBUG
 #Preview("Читаю") {
-    let container = SampleData.makeContainer()
-    let book = try! container.mainContext.fetch(FetchDescriptor<Book>()).first { $0.status == .reading }!
+    let container = SampleData.makeContainer(seeded: false)
+    let book = SampleData.makeBooks().first { $0.status == .reading } ?? Book(title: "Книга", author: "Автор")
+    container.mainContext.insert(book)
     return NavigationStack {
         BookDetailView(viewModel: BookDetailViewModel(
             book: book,
@@ -144,10 +145,9 @@ struct BookDetailView: View {
         ))
     }
 }
-#endif
 
 #Preview("Без страниц и описания") {
-    let container = try! ModelContainer(for: Book.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+    let container = SampleData.makeContainer(seeded: false)
     let book = Book(title: "Старая книга", author: "Автор")
     container.mainContext.insert(book)
     return NavigationStack {
@@ -157,3 +157,4 @@ struct BookDetailView: View {
         ))
     }
 }
+#endif

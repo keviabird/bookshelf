@@ -32,7 +32,10 @@ enum SampleData {
                 pageCount: 498,
                 currentPage: 210,
                 publicationYear: 1967,
-                bookDescription: "Воланд со свитой приезжает в Москву 1930-х, а Мастер пишет роман о Понтии Пилате. Сатира, мистика и история любви в одной книге.",
+                bookDescription: """
+                    Воланд со свитой приезжает в Москву 1930-х, а Мастер пишет роман о Понтии Пилате. \
+                    Сатира, мистика и история любви в одной книге.
+                    """,
                 isFavorite: true,
                 dateAdded: added(0)
             ),
@@ -56,18 +59,21 @@ enum SampleData {
                 publicationYear: 1924,
                 bookDescription: "Антиутопия о Едином Государстве, где у людей вместо имён номера, а жизнь расписана по Часовой Скрижали.",
                 dateAdded: added(4)
-            ),
+            )
         ]
     }
 
     /// Контейнер в памяти с примерами книг.
-    static func makeContainer() -> ModelContainer {
+    /// `seeded: false` — пустая полка.
+    static func makeContainer(seeded: Bool = true) -> ModelContainer {
         do {
             let container = try ModelContainer(
                 for: Book.self,
                 configurations: ModelConfiguration(isStoredInMemoryOnly: true)
             )
-            makeBooks().forEach { container.mainContext.insert($0) }
+            if seeded {
+                makeBooks().forEach { container.mainContext.insert($0) }
+            }
             try container.mainContext.save()
             return container
         } catch {

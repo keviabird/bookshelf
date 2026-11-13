@@ -115,7 +115,7 @@ final class BookSearchViewModel {
     static func message(for error: Error) -> String {
         let offlineCodes: Set<URLError.Code> = [
             .notConnectedToInternet, .networkConnectionLost, .dataNotAllowed,
-            .internationalRoamingOff, .cannotFindHost, .cannotConnectToHost, .timedOut,
+            .internationalRoamingOff, .cannotFindHost, .cannotConnectToHost, .timedOut
         ]
         if let urlError = error as? URLError, offlineCodes.contains(urlError.code) {
             return "Нет подключения к интернету. Проверьте сеть и попробуйте ещё раз."

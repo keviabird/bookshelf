@@ -4,7 +4,7 @@ import SwiftUI
 /// Выбранный чип — тёмный. Используется в фильтре списка (со счётчиком) и в карточке книги (без).
 struct StatusChip: View {
     let title: String
-    var count: Int? = nil
+    var count: Int?
     let isSelected: Bool
     let action: () -> Void
 

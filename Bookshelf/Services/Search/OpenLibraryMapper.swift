@@ -8,8 +8,9 @@ nonisolated enum OpenLibraryMapper {
 
     /// nil — у документа нет названия, показывать нечего.
     static func result(from doc: OpenLibraryDocDTO) -> BookSearchResult? {
-        let title = doc.title?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        guard !title.isEmpty else { return nil }
+        guard let title = doc.title?.trimmingCharacters(in: .whitespacesAndNewlines), !title.isEmpty else {
+            return nil
+        }
         let authors = (doc.authorName ?? [])
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }

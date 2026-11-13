@@ -127,14 +127,13 @@ struct AddBookView: View {
     }
 }
 
+#if DEBUG
 #Preview {
-    let container = try! ModelContainer(
-        for: Book.self,
-        configurations: ModelConfiguration(isStoredInMemoryOnly: true)
-    )
+    let container = SampleData.makeContainer(seeded: false)
     return AddBookView(
         viewModel: AddBookViewModel(
             repository: SwiftDataBookRepository(context: container.mainContext)
         )
     )
 }
+#endif

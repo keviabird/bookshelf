@@ -178,14 +178,13 @@ struct BookListView: View {
 }
 #endif
 
+#if DEBUG
 #Preview("Пусто") {
-    let container = try! ModelContainer(
-        for: Book.self,
-        configurations: ModelConfiguration(isStoredInMemoryOnly: true)
-    )
+    let container = SampleData.makeContainer(seeded: false)
     return BookListView(
         viewModel: BookListViewModel(
             repository: SwiftDataBookRepository(context: container.mainContext)
         )
     )
 }
+#endif

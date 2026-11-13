@@ -110,7 +110,7 @@ struct BookProgressTests {
         (0.75, "75%"),
         (1.0, "100%"),
         (1.5, "100%"),
-        (Double.nan, "0%"),
+        (Double.nan, "0%")
     ])
     func percentText(progress: Double, expected: String) {
         #expect(ReadingFormat.percent(progress) == expected)

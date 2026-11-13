@@ -70,10 +70,10 @@ struct OpenLibraryMapperTests {
     struct PartialDoc: Sendable, CustomTestStringConvertible {
         let name: String
         let fields: String
-        var coverURL: URL? = nil
+        var coverURL: URL?
         var author = ""
-        var year: Int? = nil
-        var pageCount: Int? = nil
+        var year: Int?
+        var pageCount: Int?
 
         var testDescription: String { name }
     }
@@ -92,7 +92,7 @@ struct OpenLibraryMapperTests {
                    author: "Илья Ильф, Евгений Петров"),
         PartialDoc(name: "0 страниц", fields: #", "number_of_pages_median": 0"#),
         PartialDoc(name: "отрицательные страницы", fields: #", "number_of_pages_median": -10"#),
-        PartialDoc(name: "есть страницы", fields: #", "number_of_pages_median": 250"#, pageCount: 250),
+        PartialDoc(name: "есть страницы", fields: #", "number_of_pages_median": 250"#, pageCount: 250)
     ])
     func mapsPartialDocuments(doc: PartialDoc) throws {
         let json = #"{"docs": [{"key": "/works/X", "title": "Книга""# + doc.fields + "}]}"
@@ -189,7 +189,7 @@ struct OpenLibraryMapperTests {
 
 struct OpenLibrarySearchServiceTests {
     @Test func buildsSearchRequest() throws {
-        let request = OpenLibrarySearchService.makeRequest(query: "мастер и маргарита")
+        let request = try OpenLibrarySearchService.makeRequest(query: "мастер и маргарита")
         let url = try #require(request.url)
         let components = try #require(URLComponents(url: url, resolvingAgainstBaseURL: false))
         let items = Dictionary(uniqueKeysWithValues: (components.queryItems ?? []).map { ($0.name, $0.value) })
@@ -206,7 +206,7 @@ struct OpenLibrarySearchServiceTests {
     }
 
     @Test func escapesReservedCharacters() throws {
-        let url = try #require(OpenLibrarySearchService.makeRequest(query: "C&A #1").url)
+        let url = try #require(try OpenLibrarySearchService.makeRequest(query: "C&A #1").url)
         let components = try #require(URLComponents(url: url, resolvingAgainstBaseURL: false))
 
         #expect(components.queryItems?.first { $0.name == "q" }?.value == "C&A #1")

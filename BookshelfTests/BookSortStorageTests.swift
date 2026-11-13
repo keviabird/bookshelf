@@ -38,7 +38,7 @@ struct BookSortStorageTests {
         ("title", "sideways"),
         ("title", nil),
         (nil, "ascending"),
-        ("", ""),
+        ("", "")
     ] as [(String?, String?)])
     func unknownStoredValuesFallBackToDefault(key: String?, order: String?) {
         let defaults = makeIsolatedDefaults()
